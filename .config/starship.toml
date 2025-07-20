@@ -1,0 +1,24 @@
+format = """
+$directory\
+$git_branch\
+$git_status\
+$fill\
+$python\
+$nodejs\
+$jobs\
+$cmd_duration\
+$line_break\
+$character"""
+
+[character]
+success_symbol = "[❯](bold green)"
+error_symbol = "[✖](bold red)"
+
+[fill]
+symbol = " "
+
+[directory]
+format = '[$path ]($style)'
+truncation_length = 4
+truncation_symbol = '../'
+truncate_to_repo = false

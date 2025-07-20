@@ -1,0 +1,107 @@
+configuration {
+    modes: [ combi ];
+    combi-modes: [ window, drun, run ];
+}
+
+@theme "default"
+
+* {
+    background:      rgba(107, 6, 102, 0.8);
+    entry-bg:        rgba(64, 0, 72, 0.8);
+    cursor:          rgba(5, 5, 5, 0.8);
+    entry-text:      rgba(255, 182, 193, 0.8);
+    element-bg:      rgba(82, 0, 85, 0.8);
+    alt-bg:          rgba(64, 0, 72, 0.8);
+    selected-bg:     rgba(161, 0, 156, 0.8);
+    element-text:    rgba(240, 54, 234, 1.0);
+    white:           rgba(255, 255, 255, 1.0);
+    border-color:    rgba(255, 217, 254, 1.0);
+}
+
+configuration {
+    modes: [ combi ];
+    combi-modes: [ window, drun, run ];
+}
+
+window {
+    background-color: @background;
+    border: 1px 1px 1px 1px;
+    border-color: @border-color;
+    padding: 5;
+    orientation: horizontal;
+    children: [ main-box ];
+}
+
+main-box {
+    orientation: vertical;
+    padding: 0.75em;
+    spacing: 0.75em;
+    border: 2px 1px 1px 1px;
+    border-color: @border-color;
+    children: [ entry, listview ];
+}
+
+entry {
+    placeholder: "Type here";
+    text-color: @entry-text;
+    background-color: @entry-bg;
+    padding: 15px;
+    cursor-color: @cursor;
+    cursor-width: 10px;
+    hide-cursor-on-empty: true;
+    expand: false;
+    fixed-height: true;
+    height: 1.5em;
+    yalign: 0.0;
+    border: 2px 2px 2px 2px;
+    border-color: @border-color;
+}
+
+listview {
+    outline: none;
+    border: none;
+    layout: vertical;
+    expand: true;
+    spacing: 0.5em;
+    lines: 5;
+    yalign: 0.0;
+}
+
+#element.normal.normal {
+    background-color: @element-bg;
+    text-color: @white;
+    border: 2px 2px 2px 2px;
+    border-color: @border-color;
+}
+#element.alternate.normal {
+    background-color: @alt-bg;
+    text-color: @white;
+    border: 2px 2px 2px 2px;
+    border-color: @border-color;
+}
+#element.selected.normal {
+    background-color: @selected-bg;
+    text-color: @white;
+    border: 2px 2px 2px 2px;
+    border-color: @border-color;
+}
+
+element {
+    orientation: horizontal;
+    children: [ element-icon, element-text ];
+    spacing: 12px;
+    padding: 10px;
+    border-radius: 6px;
+    background-color: @element-bg;
+    border: 2px 2px 2px 2px;
+    border-color: @border-color;
+}
+
+element-icon {
+    size: 1.6em;
+}
+
+element-text {
+    text-color: @element-text;
+    vertical-align: 0.5;
+}
