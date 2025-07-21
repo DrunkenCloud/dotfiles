@@ -1,19 +1,46 @@
-# Enable Oh My Zsh plugins
-plugins=(git)
+# --- Zinit install if missing, then load ---
+ZINIT_HOME="${XDG_DATA_HOME:-$HOME/.local/share}/zinit/zinit.git"
+if [[ ! -d "$ZINIT_HOME" ]]; then
+  mkdir -p "$(dirname "$ZINIT_HOME")"
+  git clone https://github.com/zdharma-continuum/zinit.git "$ZINIT_HOME"
+fi
+source "$ZINIT_HOME/zinit.zsh"
 
-# Load Oh My Zsh
-export ZSH="$HOME/.oh-my-zsh"
-ZSH_THEME="robbyrussell"  # or any theme you want
-source $ZSH/oh-my-zsh.sh
+# --- Zinit plugins ---
+zinit light zsh-users/zsh-syntax-highlighting
+zinit light zsh-users/zsh-completions
+zinit light zsh-users/zsh-autosuggestions
+zinit light zsh-users/zsh-history-substring-search
 
-# === Your Custom Additions ===
+# --- History substring search: bind keys and disable highlighting ---
+HISTORY_SUBSTRING_SEARCH_HIGHLIGHT_FOUND=''
+HISTORY_SUBSTRING_SEARCH_HIGHLIGHT_NOT_FOUND=''
 
-# History config
-HISTCONTROL=ignoreboth
-HISTSIZE=1000
-HISTFILESIZE=2000
+bindkey "$terminfo[kcuu1]" history-substring-search-up
+bindkey "$terminfo[kcud1]" history-substring-search-down
 
-# Color support
+# --- Completions ---
+zstyle ':completion:*' use-cache yes
+zstyle ':completion::complete:*' cache-path ~/.zsh/cache
+autoload -Uz compinit
+compinit -C
+
+# --- Shell History Options ---
+HISTFILE=~/.zsh_history
+HISTSIZE=5000
+SAVEHIST=$HISTSIZE
+setopt APPEND_HISTORY
+setopt EXTENDED_HISTORY
+setopt HIST_EXPIRE_DUPS_FIRST
+setopt HIST_IGNORE_DUPS
+setopt HIST_IGNORE_ALL_DUPS
+setopt HIST_FIND_NO_DUPS
+setopt HIST_REDUCE_BLANKS
+setopt HIST_SAVE_NO_DUPS
+setopt INC_APPEND_HISTORY
+setopt SHARE_HISTORY
+
+# --- Color Support for GNU Tools ---
 if [ -x /usr/bin/dircolors ]; then
   test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
   alias ls='ls --color=auto'
@@ -22,42 +49,49 @@ if [ -x /usr/bin/dircolors ]; then
   alias egrep='egrep --color=auto'
 fi
 
-# Aliases
+# --- Aliases ---
 alias ll='ls -alF'
 alias la='ls -A'
 alias l='ls -CF'
 alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
 alias actvenv='source ~/venv/bin/activate'
-
-# NVM
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
-[ -s "$NVM_DIR/bash_completion" ] && . "$NVM_DIR/bash_completion"
-
-# Starship prompt
-eval "$(starship init zsh)"
-
-# Cloudflare Warp
-warp-cli connect > /dev/null 2>&1
-
-# Add Go to PATH
-export PATH=$PATH:/usr/local/go/bin
-
-# Optional: Source bash aliases if you use them
-[ -f ~/.bash_aliases ] && source ~/.bash_aliases
-export FLYCTL_INSTALL="/home/drunkencloud/.fly"
-export PATH="$FLYCTL_INSTALL/bin:$PATH"
-
-# pnpm
-export PNPM_HOME="/home/drunkencloud/.local/share/pnpm"
-case ":$PATH:" in
-  *":$PNPM_HOME:"*) ;;
-  *) export PATH="$PNPM_HOME:$PATH" ;;
-esac
-# pnpm end
-export PATH="$HOME/.local/bin:$PATH"
-export PATH="$PATH:/opt/nvim/"
-export PATH="$HOME/.local/bin:$PATH"
-export PATH="$PATH:/opt/gradle/gradle-7.14.2/bin"
 alias tree="tree -I 'node_modules|dist|.git'"
 alias vim="nvim"
+
+# --- Load custom bash aliases, if present ---
+[ -f ~/.bash_aliases ] && source ~/.bash_aliases
+
+# --- Lazy-load nvm when needed ---
+export NVM_DIR="$HOME/.nvm"
+nvm_lazy_load() {
+  unset -f nvm node npm npx gemini heroku ganache pyright
+  [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+  [ -s "$NVM_DIR/bash_completion" ] && . "$NVM_DIR/bash_completion"
+  "$@"
+}
+for cmd in nvm node npm npx gemini heroku ganache pyright; do
+  eval "${cmd}() { nvm_lazy_load ${cmd} \"\$@\"; }"
+done
+ 
+# --- Starship prompt ---
+if command -v starship >/dev/null 2>&1; then
+  eval "$(starship init zsh)"
+fi
+
+# --- Cloudflare Warp (silently connect) ---
+warp-cli connect > /dev/null 2>&1
+
+# --- PATH modifications ---
+export PATH="$HOME/.local/bin:$PATH"
+export PATH="$PATH:/usr/local/go/bin"
+export FLYCTL_INSTALL="/home/drunkencloud/.fly"
+export PATH="$FLYCTL_INSTALL/bin:$PATH"
+export PNPM_HOME="/home/drunkencloud/.local/share/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME:"*) ;; # already in PATH
+  *) export PATH="$PNPM_HOME:$PATH" ;;
+esac
+export PATH="$PATH:/opt/nvim"
+export PATH="$PATH:/opt/gradle/gradle-7.14.2/bin"
+
+# --- End of .zshrc ---
