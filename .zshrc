@@ -78,9 +78,6 @@ if command -v starship >/dev/null 2>&1; then
   eval "$(starship init zsh)"
 fi
 
-# --- Cloudflare Warp (silently connect) ---
-warp-cli connect > /dev/null 2>&1
-
 # --- PATH modifications ---
 export PATH="$HOME/.local/bin:$PATH"
 export PATH="$PATH:/usr/local/go/bin"
