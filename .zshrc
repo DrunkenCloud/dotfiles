@@ -55,31 +55,25 @@ alias la='ls -A'
 alias l='ls -CF'
 alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
 alias actvenv='source ~/venv/bin/activate'
-alias tree="tree -I 'node_modules|dist|.git'"
+alias tree="tree -I 'node_modules|dist|.git|__pycache__'"
 alias vim="nvim"
+alias actvenv="source ./venv/bin/activate"
+alias ac="ani-cli"
+alias wgup="sudo wg-quick up wg0"
+alias wgdown="sudo wg-quick down wg0"
 
 # --- Load custom bash aliases, if present ---
 [ -f ~/.bash_aliases ] && source ~/.bash_aliases
 
 # --- Lazy-load nvm when needed ---
 export NVM_DIR="$HOME/.nvm"
-nvm_lazy_load() {
-  unset -f nvm node npm npx gemini heroku ganache pyright
-  [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
-  [ -s "$NVM_DIR/bash_completion" ] && . "$NVM_DIR/bash_completion"
-  "$@"
-}
-for cmd in nvm node npm npx gemini heroku ganache pyright; do
-  eval "${cmd}() { nvm_lazy_load ${cmd} \"\$@\"; }"
-done
- 
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
 # --- Starship prompt ---
 if command -v starship >/dev/null 2>&1; then
   eval "$(starship init zsh)"
 fi
-
-# --- Cloudflare Warp (silently connect) ---
-warp-cli connect > /dev/null 2>&1
 
 # --- PATH modifications ---
 export PATH="$HOME/.local/bin:$PATH"
