@@ -125,3 +125,5 @@ alias actvenv='source ~/venv/bin/activate'
 export PATH=$PATH:/usr/local/go/bin
 export PATH="$HOME/.local/bin:$PATH"
 . "$HOME/.cargo/env"
+
+[[ "$TERM_PROGRAM" == "kiro" ]] && . "$(kiro --locate-shell-integration-path bash)"

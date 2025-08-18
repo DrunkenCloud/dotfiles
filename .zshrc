@@ -1,5 +1,5 @@
 # --- Zinit install if missing, then load ---
-ZINIT_HOME="${XDG_DATA_HOME}:-${HOME/.local/share}/zinit/zinit.git"
+ZINIT_HOME="${XDG_DATA_HOME:-$HOME/.local/share}/zinit/zinit.git"
 if [[ ! -d "$ZINIT_HOME" ]]; then
   mkdir -p "$(dirname "$ZINIT_HOME")"
   git clone https://github.com/zdharma-continuum/zinit.git "$ZINIT_HOME"
@@ -61,7 +61,8 @@ alias actvenv="source ./venv/bin/activate"
 alias ac="ani-cli"
 alias wgup="sudo wg-quick up wg0"
 alias wgdown="sudo wg-quick down wg0"
-
+alias steam-kill='pkill -9 -f steam'
+alias cursor="cursor --no-sandbox"
 # --- Load custom bash aliases, if present ---
 [ -f ~/.bash_aliases ] && source ~/.bash_aliases
 
@@ -89,3 +90,5 @@ export PATH="$PATH:/opt/nvim"
 export PATH="$PATH:/opt/gradle/gradle-7.14.2/bin"
 
 # --- End of .zshrc ---
+
+[[ "$TERM_PROGRAM" == "kiro" ]] && . "$(kiro --locate-shell-integration-path zsh)"
