@@ -61,6 +61,8 @@ alias actvenv="source ./venv/bin/activate"
 alias ac="ani-cli"
 alias wgup="sudo wg-quick up wg0"
 alias wgdown="sudo wg-quick down wg0"
+alias steam-kill='pkill -9 -f steam'
+alias cursor="cursor --no-sandbox"
 # --- Load custom bash aliases, if present ---
 [ -f ~/.bash_aliases ] && source ~/.bash_aliases
 
@@ -90,3 +92,5 @@ export LC_CTYPE=en_US.UTF-8
 export LANG=en_US.UTF-8
 # --- End of .zshrc ---
 source $HOME/.cargo/env
+
+[[ "$TERM_PROGRAM" == "kiro" ]] && . "$(kiro --locate-shell-integration-path zsh)"
