@@ -1,0 +1,84 @@
+* {
+  border: none;
+  border-radius: 0;
+  font-family: "JetBrainsMono Nerd Font", monospace;
+  font-size: 14px;
+  min-height: 0;
+}
+
+window#waybar {
+  background: rgba(20, 20, 25, 0.85); /* Darker, less transparent */
+  color: #e0e0e0;
+}
+
+/* Workspaces - inactive */
+#workspaces button {
+  padding: 0 5px;
+  background: transparent;
+  color: #3a2e4f; /* Dark purple tone */
+  border-bottom: 2px solid transparent;
+}
+
+/* Workspaces - active */
+#workspaces button.active {
+  color: #c084fc; /* Brighter purple */
+  border-bottom: 2px solid transparent;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent; /* Makes text gradient-colored */
+}
+
+/* Workspaces - hover */
+#workspaces button:hover {
+  background: rgba(192, 132, 252, 0.15); /* Light purple hover */
+}
+
+
+/* Modules */
+#clock,
+#pulseaudio,
+#network,
+#battery,
+#tray,
+#custom-bluetooth {
+  padding: 0 10px;
+  margin: 0 4px;
+  background-color: transparent;
+}
+
+/* Colors */
+#pulseaudio {
+  color: #5a8dee; /* Muted blue */
+}
+
+#network {
+  color: #6bbf59; /* Muted green */
+}
+
+#battery {
+  color: #d45d79; /* Muted red-pink */
+}
+
+#battery.charging,
+#battery.full {
+  color: #6bbf59;
+}
+
+#battery.critical {
+  color: #d45d79;
+}
+
+#tray {
+  padding-right: 15px;
+}
+
+#custom-bluetooth {
+  color: #5ac8fa; /* Cyan for Bluetooth */
+}
+
+#custom-bluetooth.on {
+  color: #5ac8fa; /* blue when on */
+}
+#custom-bluetooth.off {
+  color: #666666; /* gray when off */
+}
+
