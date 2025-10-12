@@ -1,5 +1,5 @@
 configuration {
-    modes: [ combi ];
+    modes: [ combi, drun ];
     combi-modes: [ window, drun, run ];
 }
 
