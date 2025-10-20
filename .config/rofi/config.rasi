@@ -1,31 +1,29 @@
 configuration {
-    modes: [ combi, drun ];
+    /* Combined both configuration blocks. All modes are now available. */
+    modes: [ combi, drun, window, run ];
     combi-modes: [ window, drun, run ];
 }
 
 @theme "default"
 
+/* --- Color Definitions --- */
 * {
-    background:      rgba(107, 6, 102, 0.8);
-    entry-bg:        rgba(64, 0, 72, 0.8);
-    cursor:          rgba(5, 5, 5, 0.8);
-    entry-text:      rgba(255, 182, 193, 0.8);
-    element-bg:      rgba(82, 0, 85, 0.8);
-    alt-bg:          rgba(64, 0, 72, 0.8);
-    selected-bg:     rgba(161, 0, 156, 0.8);
-    element-text:    rgba(240, 54, 234, 1.0);
-    white:           rgba(255, 255, 255, 1.0);
-    border-color:    rgba(255, 217, 254, 1.0);
+    background:         rgba(107, 6, 102, 0.8);
+    entry-bg:           rgba(64, 0, 72, 0.8);
+    cursor:             rgba(5, 5, 5, 0.8);
+    entry-text:         rgba(255, 182, 193, 0.8);
+    element-bg:         rgba(82, 0, 85, 0.8);
+    alt-bg:             rgba(64, 0, 72, 0.8);
+    selected-bg:        rgba(161, 0, 156, 0.8);
+    element-text:       rgba(240, 54, 234, 1.0);
+    white:              rgba(255, 255, 255, 1.0);
+    border-color:       rgba(255, 217, 254, 1.0);
 }
 
-configuration {
-    modes: [ combi ];
-    combi-modes: [ window, drun, run ];
-}
-
+/* --- Main Window --- */
 window {
     background-color: @background;
-    border: 1px 1px 1px 1px;
+    border: 1px;
     border-color: @border-color;
     padding: 5;
     orientation: horizontal;
@@ -41,6 +39,7 @@ main-box {
     children: [ entry, listview ];
 }
 
+/* --- Entry Box (Input Field) --- */
 entry {
     placeholder: "Type here";
     text-color: @entry-text;
@@ -53,10 +52,11 @@ entry {
     fixed-height: true;
     height: 1.5em;
     yalign: 0.0;
-    border: 2px 2px 2px 2px;
+    border: 2px;
     border-color: @border-color;
 }
 
+/* --- List View --- */
 listview {
     outline: none;
     border: none;
@@ -67,34 +67,15 @@ listview {
     yalign: 0.0;
 }
 
-#element.normal.normal {
-    background-color: @element-bg;
-    text-color: @white;
-    border: 2px 2px 2px 2px;
-    border-color: @border-color;
-}
-#element.alternate.normal {
-    background-color: @alt-bg;
-    text-color: @white;
-    border: 2px 2px 2px 2px;
-    border-color: @border-color;
-}
-#element.selected.normal {
-    background-color: @selected-bg;
-    text-color: @white;
-    border: 2px 2px 2px 2px;
-    border-color: @border-color;
-}
-
+/* --- Generic Element Styling (Layout & Common Properties) --- */
 element {
+    /* Only properties common to ALL elements (normal, alternate, selected) */
     orientation: horizontal;
     children: [ element-icon, element-text ];
     spacing: 12px;
     padding: 10px;
     border-radius: 6px;
-    background-color: @element-bg;
-    border: 2px 2px 2px 2px;
-    border-color: @border-color;
+    /* Background/Color/Border handled by the specific state definitions below */
 }
 
 element-icon {
@@ -104,4 +85,25 @@ element-icon {
 element-text {
     text-color: @element-text;
     vertical-align: 0.5;
+}
+
+/* --- Specific Element States (Fixed Overrides) --- */
+#element.normal.normal {
+    background-color: @element-bg;
+    text-color: @white;
+    border: 2px;
+    border-color: @border-color;
+}
+#element.alternate.normal {
+    background-color: @alt-bg;
+    text-color: @white;
+    border: 2px;
+    border-color: @border-color;
+}
+#element.selected.normal {
+    /* FIX: This will now correctly use the selected color */
+    background-color: @selected-bg;
+    text-color: @white;
+    border: 2px;
+    border-color: @border-color;
 }

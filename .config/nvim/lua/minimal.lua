@@ -1,3 +1,10 @@
+-- Core Options (Adding Indentation Settings)
+-- Setting indentation to 4 spaces
+vim.opt.tabstop = 4         -- A hard tab character displays as 4 spaces
+vim.opt.shiftwidth = 4      -- Auto-indentation is 4 spaces
+vim.opt.expandtab = true    -- Insert spaces instead of a tab character
+vim.opt.smartindent = true  -- Enable smart auto-indenting
+
 -- Leader key
 vim.g.mapleader = " "
 
@@ -5,7 +12,6 @@ vim.g.mapleader = " "
 vim.opt.number = true
 vim.opt.relativenumber = true
 
--- Colorscheme (catppuccin)
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then
   vim.fn.system({
@@ -24,17 +30,6 @@ require("lazy").setup({
   },
   {
     "neovim/nvim-lspconfig",
-  },
-  {
-    "Mofiqul/dracula.nvim",
-    name = "dracula",
-    priority = 1000,
-    config = function()
-      require("dracula").setup({
-        transparent_bg = true
-      })
-      vim.cmd.colorscheme("dracula")
-    end,
   },
   {
     "kevinhwang91/nvim-ufo",
@@ -72,18 +67,23 @@ require("lazy").setup({
             node_decremental = "<c-backspace>",
           },
         },
+
       }
     end,
   },
+
   "nvim-treesitter/nvim-treesitter-context",
-  "andymass/vim-matchup",
   {
     "lukas-reineke/indent-blankline.nvim",
     main = "ibl",
     opts = {}
   },
-  
-  -- Completion
+  {
+    "windwp/nvim-autopairs",
+    config = function()
+      require("nvim-autopairs").setup()
+    end,
+  },
   {
     "hrsh7th/nvim-cmp",
     dependencies = {
@@ -95,78 +95,18 @@ require("lazy").setup({
   },
 })
 
--- LSP
-local lspconfig = require('lspconfig')
-local cmp = require('cmp')
-
-local capabilities = require('cmp_nvim_lsp').default_capabilities()
-
-lspconfig.pyright.setup {
-  capabilities = capabilities,
-}
-lspconfig.ts_ls.setup {
-  capabilities = capabilities,
-}
-lspconfig.clangd.setup {
-  capabilities = capabilities,
-}
-
-
--- Completion
-cmp.setup({
-  snippet = {
-    expand = function(args)
-      require('luasnip').lsp_expand(args.body)
-    end,
-  },
-  mapping = cmp.mapping.preset.insert({
-    ['<C-b>'] = cmp.mapping.scroll_docs(-4),
-    ['<C-f>'] = cmp.mapping.scroll_docs(4),
-    ['<C-Space>'] = cmp.mapping.complete(),
-    ['<C-e>'] = cmp.mapping.abort(),
-    ['<Tab>'] = cmp.mapping.confirm({ select = true }),
-  }),
-  sources = cmp.config.sources({
-    { name = 'nvim_lsp' },
-    { name = 'luasnip' },
-  }, {
-    { name = 'buffer' },
-    { name = 'path' },
-  })
-})
-
--- LSP Diagnostics and Hover
-vim.diagnostic.config({
-  virtual_text = true,
-  signs = true,
-  update_in_insert = false,
-  float = {
-    focusable = false,
-    style = "minimal",
-    border = "rounded",
-    source = "always",
-    header = "",
-    prefix = "",
-  },
-})
+-- Load LSP configuration
+require("lsp")
 
 -- Telescope
 vim.keymap.set("n", "<leader>ff", require("telescope.builtin").find_files, {})
 
--- 🔁 Always re-enable relative numbering (netrw is weird)
-vim.api.nvim_create_autocmd({ "BufEnter", "WinEnter", "FocusGained", "InsertLeave" }, {
-  callback = function()
-    if vim.bo.buftype == "" or vim.bo.filetype == "netrw" then
-      vim.wo.number = true
-      vim.wo.relativenumber = true
-    end
-  end,
-})
-vim.api.nvim_create_autocmd({ "InsertEnter", "FocusLost" }, {
-  callback = function()
-    vim.wo.relativenumber = false
-  end,
-})
-
+-- Load the colorscheme module now that it's in the runtime path
 vim.cmd.colorscheme("elaina")
 
+-- Map <Leader>y to copy (yank) to the system clipboard
+vim.keymap.set({"n", "v"}, "<leader>y", '"+y', {desc = "Yank to system clipboard"})
+-- Map <Leader>d to cut (delete/yank) to the system clipboard
+vim.keymap.set({"n", "v"}, "<leader>d", '"+d', {desc = "Cut to system clipboard"})
+-- Map <Leader>p to paste from the system clipboard
+vim.keymap.set({"n", "v"}, "<leader>p", '"+p', {desc = "Paste from system clipboard"})

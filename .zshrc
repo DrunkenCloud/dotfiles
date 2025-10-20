@@ -94,3 +94,4 @@ export LANG=en_US.UTF-8
 source $HOME/.cargo/env
 
 [[ "$TERM_PROGRAM" == "kiro" ]] && . "$(kiro --locate-shell-integration-path zsh)"
+eval "$(zoxide init zsh)"
