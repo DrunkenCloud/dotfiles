@@ -19,7 +19,7 @@ configuration {
 window {
     width: 520px;
     border-radius: 18px;
-    background-color: #14121cff;   /* opaque so text behind doesn't bleed through */
+    background-color: #14121ce0;   /* ~88% opaque: wallpaper shows through softly */
     border: 1px;
     border-color: @border-col;
     padding: 14px;
@@ -36,6 +36,8 @@ inputbar {
 entry {
     placeholder: "Search apps...";
     placeholder-color: @dim;
+    text-color: #ffffff;           /* what you type */
+    cursor-color: #ffffff;
     font: "Ubuntu Sans 13";
     vertical-align: 0.5;
 }
@@ -58,7 +60,10 @@ element normal.normal, element alternate.normal { background-color: transparent;
 element selected.normal {
     background-color: @hover;
     text-color: #ffffff;
-    border: 0px 0px 0px 3px;   /* purple accent bar on the left */
-    border-color: @accent;
 }
-element-text { font: "Ubuntu Sans 12"; vertical-align: 0.5; text-color: inherit; }
+element-text {
+    font: "Ubuntu Sans 12";
+    vertical-align: 0.5;
+    text-color: inherit;
+    highlight: bold #ffffff;       /* letters matching your search */
+}

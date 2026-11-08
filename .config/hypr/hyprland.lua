@@ -163,6 +163,9 @@ hl.bind(key("SHIFT + S"), hl.dsp.exec_cmd(scripts .. "screenshot.sh"))
 hl.bind(key("SHIFT + R"), hl.dsp.exec_cmd(scripts .. "record.sh"))        -- toggle start/stop
 hl.bind(key("SHIFT + C"), hl.dsp.exec_cmd("pkill -INT wf-recorder"))      -- emergency stop
 
+-- Voice typing (whisper.cpp, offline): press to start listening, press again to type it
+hl.bind(key("D"), hl.dsp.exec_cmd(scripts .. "dictate.sh"))
+
 -- Focus: SUPER + hjkl / arrows; move window: SUPER + SHIFT + hjkl
 local dirs = { H = "left", L = "right", K = "up", J = "down",
                left = "left", right = "right", up = "up", down = "down" }

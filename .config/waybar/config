@@ -3,7 +3,8 @@
   "position": "top",
   "modules-left": [
     "hyprland/workspaces",
-    "custom/recording"
+    "custom/recording",
+    "custom/dictate"
   ],
   "modules-center": [
     "clock"
@@ -120,5 +121,12 @@
     "interval": 2,
     "signal": 8,
     "on-click": "~/.config/hypr/scripts/record.sh"
+  },
+  "custom/dictate": {
+    "exec": "s=$(cat \"$XDG_RUNTIME_DIR/dictate.state\" 2>/dev/null); case \"$s\" in rec) echo '{\"text\":\"● Listening\",\"class\":\"rec\",\"tooltip\":\"Dictating, press SUPER+D to stop\"}';; busy) echo '{\"text\":\"… Transcribing\",\"class\":\"busy\"}';; *) echo '{\"text\":\"\"}';; esac",
+    "return-type": "json",
+    "interval": 2,
+    "signal": 9,
+    "on-click": "~/.config/hypr/scripts/dictate.sh"
   }
 }

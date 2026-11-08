@@ -81,3 +81,8 @@ tooltip {
   color: #fff;
   background: #e5484d;
 }
+
+/* Dictation indicator (SUPER+D): hidden when idle */
+#custom-dictate { padding: 0; margin: 5px 0; border-radius: 10px; background: transparent; }
+#custom-dictate.rec  { padding: 0 12px; color: #1a1424; background: #c084fc; }
+#custom-dictate.busy { padding: 0 12px; color: #e9d5ff; background: rgba(192, 132, 252, 0.25); }
