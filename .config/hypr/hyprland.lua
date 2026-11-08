@@ -146,6 +146,10 @@ hl.config({
         kb_options = "",
         kb_rules   = "",
         follow_mouse       = 1, -- focus follows the mouse
+        -- ...but only when the cursor crosses into another window. Otherwise any
+        -- tiny mouse movement re-focuses the window under it and steals the
+        -- keyboard from an open Noctalia panel (Esc stops closing it).
+        mouse_refocus      = false,
         numlock_by_default = true,
         sensitivity        = 0,
         touchpad = { natural_scroll = true },

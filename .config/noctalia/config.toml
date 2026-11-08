@@ -11,10 +11,12 @@ setup_wizard_enabled = false   # this file is the setup
 telemetry_enabled = false
 polkit_agent = false           # hyprpolkitagent already does this
 
-# Colors are generated from the wallpaper (purple, like the rest of the setup).
+# Colors: palettes/Lavender.json, the same purple as the old waybar/rofi theme.
+# (source = "wallpaper" would generate them from the wallpaper instead.)
 [theme]
 mode = "dark"
-source = "wallpaper"
+source = "custom"
+custom_palette = "Lavender"
 
 [wallpaper.default]
 path = "~/.config/hypr/ai_star.png"
