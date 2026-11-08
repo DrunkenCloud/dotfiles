@@ -1,0 +1,6 @@
+# Never back these up, wherever they appear
+node_modules
+__pycache__
+.venv
+*.log
+.local/share/Anki2/*/collection.media.db2-wal

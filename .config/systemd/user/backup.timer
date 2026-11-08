@@ -1,0 +1,11 @@
+[Unit]
+Description=Daily encrypted backup to Google Drive
+
+[Timer]
+OnCalendar=daily
+# If the laptop was off at the scheduled time, run at the next boot
+Persistent=true
+RandomizedDelaySec=30min
+
+[Install]
+WantedBy=timers.target

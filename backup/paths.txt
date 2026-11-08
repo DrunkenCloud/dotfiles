@@ -1,0 +1,33 @@
+# What gets backed up (relative to your home folder). One path per line.
+# Edit freely; the next backup picks up changes.
+
+WeebZone
+Books
+backups/github
+
+Documents/college_docs
+Documents/comes_in_use
+Documents/genshin
+Documents/idk_but_better_to_keep
+Documents/motorq
+Documents/Paypal
+Documents/rec_codes
+Documents/Resumes
+Documents/tax_stuff
+Documents/work
+
+# Keys, credentials and saved passwords (why the backup is encrypted)
+.ssh
+.gnupg
+.local/share/keyrings
+.aws
+.kube/config
+.config/gh
+.gitconfig
+
+# App data / settings
+.local/share/Anki2
+.local/share/fonts
+.zsh_history
+.config/Code/User/settings.json
+.config/Code/User/snippets

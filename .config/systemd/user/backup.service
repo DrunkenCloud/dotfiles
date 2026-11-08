@@ -1,0 +1,13 @@
+[Unit]
+Description=Encrypted backup to Google Drive (restic)
+# Only on AC power, so it never drains the battery
+ConditionACPower=true
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=%h/dotfiles/backup/backup.sh
+# Low priority: don't slow down whatever you're doing
+Nice=19
+IOSchedulingClass=idle
