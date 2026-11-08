@@ -1,0 +1,27 @@
+# mako notifications, themed like waybar / rofi (purple, rounded)
+
+font=Ubuntu Sans 11
+anchor=top-right
+outer-margin=8,6,0,0
+margin=6
+width=360
+padding=12,14
+border-size=2
+border-radius=14
+background-color=#14121cf0
+text-color=#e9d5ff
+border-color=#a855f78c
+progress-color=over #c084fc55
+icons=1
+max-icon-size=40
+default-timeout=5000
+max-visible=4
+layer=overlay
+format=<b>%s</b>\n%b
+
+[urgency=low]
+border-color=#4a3d63
+
+[urgency=critical]
+border-color=#ed8796
+default-timeout=0

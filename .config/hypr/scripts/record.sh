@@ -7,5 +7,6 @@ else
     GEOM=$(slurp) || exit 0          # Esc in slurp = cancel, don't record
     mkdir -p ~/Videos
     wf-recorder -g "$GEOM" -f ~/Videos/recording_$(date +%Y-%m-%d_%H-%M-%S).mp4 &
+    notify-send -u low "Recording started" "SUPER+SHIFT+R again to stop"
 fi
 sleep 0.3; pkill -RTMIN+8 waybar     # refresh the bar's recording indicator now

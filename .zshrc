@@ -121,4 +121,11 @@ alias check-tsa='curl -s -o /dev/null -w "TSA status: %{http_code}\n" -X POST -H
 # --- Tool integrations ---
 [[ "$TERM_PROGRAM" == "kiro" ]] && . "$(kiro --locate-shell-integration-path zsh)"
 eval "$(zoxide init zsh)"
+
+# --- fzf: Ctrl+R fuzzy history, Ctrl+T insert a file path, Alt+C cd into a folder ---
+if command -v fzf >/dev/null 2>&1; then
+  export FZF_DEFAULT_OPTS="--height 40% --layout=reverse --border=rounded \
+    --color=bg+:#2a2238,fg+:#ffffff,hl:#c084fc,hl+:#d8b4fe,pointer:#c084fc,prompt:#c084fc,border:#a855f7,info:#8b7aa8"
+  source <(fzf --zsh)
+fi
 command -v starship >/dev/null 2>&1 && eval "$(starship init zsh)"
