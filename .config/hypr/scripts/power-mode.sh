@@ -6,7 +6,7 @@
 #               and goes back to "power-saver" after ~1 min of calm.
 # Plug/unplug is picked up instantly via udev; load is sampled every INTERVAL s.
 #
-# Also: notification at 15% battery, urgent one at 5%.
+# Also: notification at 15% battery, urgent one at 5% (unless Noctalia is running).
 #
 # Testing overrides: POWER_MODE_AC=<file> POWER_MODE_BAT=<file> INTERVAL= UP_AFTER= DOWN_AFTER=
 
@@ -50,6 +50,7 @@ set_profile() {
 warned=""             # "", "low" or "crit": each warning is shown once per discharge
 battery_warnings() {
     local cap
+    pidof -q noctalia && return   # Noctalia shows its own (15% / 5% / 2%)
     cap=$(< "$BAT") || return
     if (( cap <= CRIT_AT )) && [ "$warned" != crit ]; then
         notify-send -u critical -i battery-caution "Battery critical: ${cap}%" "Plug in now, the laptop will shut down soon."

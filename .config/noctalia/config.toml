@@ -1,0 +1,60 @@
+# Noctalia shell (bar, launcher, notifications, OSD, lock screen, idle, wallpaper,
+# clipboard, night light). Started from hyprland.lua when  shell = "noctalia".
+#
+# Only settings that differ from Noctalia's defaults are listed here.
+# Changes made in the Settings window (SUPER+,) go to ~/.local/state/noctalia/settings.toml
+# and win over this file. See every option:  noctalia config export full
+# Docs: https://docs.noctalia.dev/noctalia/
+
+[shell]
+setup_wizard_enabled = false   # this file is the setup
+telemetry_enabled = false
+polkit_agent = false           # hyprpolkitagent already does this
+
+# Colors are generated from the wallpaper (purple, like the rest of the setup).
+[theme]
+mode = "dark"
+source = "wallpaper"
+
+[wallpaper.default]
+path = "~/.config/hypr/ai_star.png"
+
+[bar.default]
+margin_edge = 6                # floating, detached from the screen edge
+margin_ends = 6
+concave_edge_corners = false
+start = [ "launcher", "workspaces", "active_window" ]
+center = [ "clock" ]
+end = [ "cpu", "ram", "temp", "tray", "notifications", "network", "bluetooth",
+        "volume", "brightness", "battery", "power_profile", "control-center", "session" ]
+
+# Same timings as the old hypridle setup: lock 5 min, screen off 5.5 min,
+# suspend 30 min. The screen fades for 2 s first; moving the mouse cancels.
+# Closing the lid also locks first (lockscreen.lock_before_suspend, default on).
+[idle]
+behavior_order = [ "lock", "screen-off", "suspend" ]
+
+[idle.behavior.lock]
+action = "lock"
+timeout = 300
+
+[idle.behavior.screen-off]
+action = "screen_off"
+timeout = 330
+
+[idle.behavior.suspend]
+action = "lock_and_suspend"
+timeout = 1800
+
+[lockscreen]
+blurred_desktop = false
+
+# SUPER+R holds 4000 K (like the old hyprsunset toggle); no automatic schedule.
+[nightlight]
+temperature_night = 4000
+
+[battery]
+warning_threshold = 15         # then 5% critical, 2% persistent
+
+[notification]
+position = "top_right"

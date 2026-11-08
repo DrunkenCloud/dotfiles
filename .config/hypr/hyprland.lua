@@ -34,8 +34,21 @@ hl.monitor({ output = "", mode = "preferred", position = "auto", scale = 1 })
 -------------------
 local terminal    = "alacritty"
 local fileManager = "nautilus"
-local menu        = "rofi -show drun"
 local scripts     = "~/.config/hypr/scripts/"
+
+-- Which desktop shell to run (takes effect at the next login):
+--   "noctalia"  Noctalia does bar, launcher, notifications, OSD, lock, idle,
+--               wallpaper, clipboard and night light (~/.config/noctalia/config.toml)
+--   "classic"   the old setup: waybar, rofi, mako, swayosd, hyprlock/hypridle,
+--               hyprpaper, cliphist, hyprsunset
+local shell = "noctalia"
+local noctalia = shell == "noctalia"
+local ipc = "noctalia msg "
+-- GL programs must use the Intel GPU (Mesa). Left alone they pick the NVIDIA
+-- GPU and keep it awake (~5 W) just to draw a bar / a still wallpaper.
+local on_intel = "__EGL_VENDOR_LIBRARY_FILENAMES=/usr/share/glvnd/egl_vendor.d/50_mesa.json "
+
+local menu = noctalia and ipc .. "panel-toggle launcher" or "rofi -show drun"
 
 -----------------
 --- AUTOSTART ---
@@ -45,20 +58,22 @@ hl.on("hyprland.start", function()
     -- outlive Hyprland. After a crash/re-login they stay tied to the dead session
     -- and make apps (browsers!) stall at startup, so hand them the new session.
     hl.exec_cmd("dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP HYPRLAND_INSTANCE_SIGNATURE && systemctl --user restart xdg-desktop-portal-hyprland xdg-desktop-portal-gtk xdg-desktop-portal")
-    hl.exec_cmd("mako")                          -- notifications (themed in ~/.config/mako/config)
     hl.exec_cmd("/usr/libexec/hyprpolkitagent")  -- password prompts for GUI apps that need admin rights
-    hl.exec_cmd("swayosd-server")                -- volume / brightness pop-up
-    hl.exec_cmd("udiskie --automount --notify --smart-tray") -- auto-mount USB drives; eject icon in waybar while one is plugged in
-    -- Clipboard history (text AND images) for SUPER+SHIFT+W
-    hl.exec_cmd("wl-paste --type text --watch cliphist store")
-    hl.exec_cmd("wl-paste --type image --watch cliphist store")
-    -- Force hyprpaper onto the Intel GPU (Mesa). Left alone it picks the NVIDIA
-    -- GPU and keeps it awake (~5 W) just to show a still wallpaper.
-    hl.exec_cmd("__EGL_VENDOR_LIBRARY_FILENAMES=/usr/share/glvnd/egl_vendor.d/50_mesa.json hyprpaper")
-    hl.exec_cmd(scripts .. "power-mode.sh") -- battery: 60 Hz + power-saver; AC: 120 Hz + balanced
-    hl.exec_cmd("waybar")
-    hl.exec_cmd("hypridle")       -- dim / lock / screen off / suspend when idle (hypridle.conf)
+    hl.exec_cmd("udiskie --automount --notify --smart-tray") -- auto-mount USB drives; eject icon in the tray while one is plugged in
+    hl.exec_cmd(scripts .. "power-mode.sh") -- power-saver on battery, balanced under load / on AC
     hl.exec_cmd("blueman-applet") -- Bluetooth pairing agent (tray icon disabled in blueman settings)
+    if noctalia then
+        hl.exec_cmd(on_intel .. "noctalia")
+    else
+        hl.exec_cmd("mako")           -- notifications (themed in ~/.config/mako/config)
+        hl.exec_cmd("swayosd-server") -- volume / brightness pop-up
+        -- Clipboard history (text AND images) for SUPER+SHIFT+W
+        hl.exec_cmd("wl-paste --type text --watch cliphist store")
+        hl.exec_cmd("wl-paste --type image --watch cliphist store")
+        hl.exec_cmd(on_intel .. "hyprpaper")
+        hl.exec_cmd("waybar")
+        hl.exec_cmd("hypridle")       -- dim / lock / screen off / suspend when idle (hypridle.conf)
+    end
 end)
 
 -----------------------------
@@ -179,6 +194,8 @@ local function bind(keys, action, desc, opts)
     opts.description = desc
     hl.bind(keys, action, opts)
 end
+-- Command for the active shell: pick(noctalia command, classic command)
+local function pick(n, c) return hl.dsp.exec_cmd(noctalia and n or c) end
 
 -- Apps
 bind(key("Q"),         hl.dsp.exec_cmd(terminal),                   "Terminal")
@@ -187,8 +204,8 @@ bind(key("W"),         hl.dsp.exec_cmd("brave-browser"),            "Brave")
 bind(key("E"),         hl.dsp.exec_cmd(fileManager),                "File manager")
 bind(key("space"),     hl.dsp.exec_cmd(menu),                       "App launcher")
 bind(key("slash"),     hl.dsp.exec_cmd(scripts .. "keybinds.sh"),   "Show this keybinding list")
-bind(key("SHIFT + W"), hl.dsp.exec_cmd(scripts .. "clipboard.sh"),  "Clipboard history (text + images)")
-bind(key("R"),         hl.dsp.exec_cmd(scripts .. "nightlight.sh"), "Toggle night light")
+bind(key("SHIFT + W"), pick(ipc .. "panel-toggle clipboard", scripts .. "clipboard.sh"),  "Clipboard history (text + images)")
+bind(key("R"),         pick(ipc .. "nightlight-force-toggle", scripts .. "nightlight.sh"), "Toggle night light")
 bind(key("D"),         hl.dsp.exec_cmd(scripts .. "dictate.sh"),    "Voice typing: start / stop and type")
 
 -- Windows
@@ -214,8 +231,15 @@ end
 for _, k in ipairs({ "H", "J", "K", "L" }) do
     bind(key("SHIFT + " .. k), hl.dsp.window.move({ direction = dirs[k] }), "Move window " .. dirs[k])
 end
-bind("ALT + Tab", hl.dsp.window.cycle_next(),   "Cycle windows")
-bind("ALT + Tab", hl.dsp.window.bring_to_top(), "Cycle windows (bring to front)")
+if noctalia then
+    bind(key("A"),            hl.dsp.exec_cmd(ipc .. "panel-toggle control-center"), "Control center (Wi-Fi, Bluetooth, notifications...)")
+    bind(key("comma"),        hl.dsp.exec_cmd(ipc .. "settings-toggle"),               "Noctalia settings")
+    bind("ALT + Tab",         hl.dsp.exec_cmd(ipc .. "window-switcher hold"),          "Switch windows")
+    bind("ALT + SHIFT + Tab", hl.dsp.exec_cmd(ipc .. "window-switcher hold reverse"),  "Switch windows (backwards)")
+else
+    bind("ALT + Tab", hl.dsp.window.cycle_next(),   "Cycle windows")
+    bind("ALT + Tab", hl.dsp.window.bring_to_top(), "Cycle windows (bring to front)")
+end
 
 -- Workspaces 1-10
 for i = 1, 10 do
@@ -236,24 +260,24 @@ bind(key("mouse_up"),   hl.dsp.focus({ workspace = "e-1" }), "Previous workspace
 bind(key("mouse:272"), hl.dsp.window.drag(),   "Drag window (left mouse)",    { mouse = true })
 bind(key("mouse:273"), hl.dsp.window.resize(), "Resize window (right mouse)", { mouse = true })
 
--- Lock screen (works even if hypridle is not running)
-bind(key("Escape"), hl.dsp.exec_cmd("pidof hyprlock || hyprlock"), "Lock screen")
+-- Lock screen
+bind(key("Escape"), pick(ipc .. "session lock", "pidof hyprlock || hyprlock"), "Lock screen")
 
 -- Power
 bind("CTRL + ALT + S", hl.dsp.exec_cmd("systemctl poweroff"), "Shut down")
 bind("CTRL + ALT + R", hl.dsp.exec_cmd("systemctl reboot"),   "Reboot")
 bind("CTRL + ALT + Q", hl.dsp.exec_cmd("systemctl suspend"),  "Suspend")
 
--- Media / brightness keys. swayosd-client changes the value AND shows a pop-up
--- slider (volume capped at 100%). Options are fresh tables per bind because
--- bind() adds a description to them.
+-- Media / brightness keys: change the value AND show a pop-up slider
+-- (Noctalia's OSD, or swayosd in classic). Options are fresh tables per bind
+-- because bind() adds a description to them.
 local function held() return { locked = true, repeating = true } end
-bind("XF86AudioRaiseVolume",  hl.dsp.exec_cmd("swayosd-client --output-volume raise"),       "Volume up",       held())
-bind("XF86AudioLowerVolume",  hl.dsp.exec_cmd("swayosd-client --output-volume lower"),       "Volume down",     held())
-bind("XF86AudioMute",         hl.dsp.exec_cmd("swayosd-client --output-volume mute-toggle"), "Mute",            held())
-bind("XF86AudioMicMute",      hl.dsp.exec_cmd("swayosd-client --input-volume mute-toggle"),  "Mute microphone", held())
-bind("XF86MonBrightnessUp",   hl.dsp.exec_cmd("swayosd-client --brightness raise"),          "Brightness up",   held())
-bind("XF86MonBrightnessDown", hl.dsp.exec_cmd("swayosd-client --brightness lower"),          "Brightness down", held())
+bind("XF86AudioRaiseVolume",  pick(ipc .. "volume-up",       "swayosd-client --output-volume raise"),       "Volume up",       held())
+bind("XF86AudioLowerVolume",  pick(ipc .. "volume-down",     "swayosd-client --output-volume lower"),       "Volume down",     held())
+bind("XF86AudioMute",         pick(ipc .. "volume-mute",     "swayosd-client --output-volume mute-toggle"), "Mute",            held())
+bind("XF86AudioMicMute",      pick(ipc .. "mic-mute",        "swayosd-client --input-volume mute-toggle"),  "Mute microphone", held())
+bind("XF86MonBrightnessUp",   pick(ipc .. "brightness-up",   "swayosd-client --brightness raise"),          "Brightness up",   held())
+bind("XF86MonBrightnessDown", pick(ipc .. "brightness-down", "swayosd-client --brightness lower"),          "Brightness down", held())
 bind("XF86AudioNext",  hl.dsp.exec_cmd("playerctl next"),       "Next track",     { locked = true })
 bind("XF86AudioPause", hl.dsp.exec_cmd("playerctl play-pause"), "Play / pause",   { locked = true })
 bind("XF86AudioPlay",  hl.dsp.exec_cmd("playerctl play-pause"), "Play / pause",   { locked = true })
@@ -262,6 +286,13 @@ bind("XF86AudioPrev",  hl.dsp.exec_cmd("playerctl previous"),   "Previous track"
 --------------------
 --- WINDOW RULES ---
 --------------------
+-- Noctalia: its settings window floats; its bar/panels animate themselves
+-- (Hyprland's layer animations on top cause tearing) and get blur.
+hl.window_rule({ name = "noctalia-settings", match = { class = "dev.noctalia.Noctalia" }, float = true, size = { 1080, 920 } })
+local noctalia_layers = "^noctalia-(bar-.+|notification|dock|panel|attached-panel|osd|window-switcher)$"
+hl.layer_rule({ name = "noctalia-no-anim", match = { namespace = noctalia_layers }, no_anim = true })
+hl.layer_rule({ name = "noctalia-blur", match = { namespace = noctalia_layers }, ignore_alpha = 0.5, blur = true, blur_popups = true })
+
 hl.window_rule({
     name  = "suppress-maximize-events",
     match = { class = ".*" },
