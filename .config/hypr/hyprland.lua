@@ -45,7 +45,12 @@ hl.on("hyprland.start", function()
     -- outlive Hyprland. After a crash/re-login they stay tied to the dead session
     -- and make apps (browsers!) stall at startup, so hand them the new session.
     hl.exec_cmd("dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP HYPRLAND_INSTANCE_SIGNATURE && systemctl --user restart xdg-desktop-portal-hyprland xdg-desktop-portal-gtk xdg-desktop-portal")
-    hl.exec_cmd("wl-paste -t text --watch clipman store")
+    hl.exec_cmd("mako")                          -- notifications (themed in ~/.config/mako/config)
+    hl.exec_cmd("/usr/libexec/hyprpolkitagent")  -- password prompts for GUI apps that need admin rights
+    hl.exec_cmd("swayosd-server")                -- volume / brightness pop-up
+    -- Clipboard history (text AND images) for SUPER+SHIFT+W
+    hl.exec_cmd("wl-paste --type text --watch cliphist store")
+    hl.exec_cmd("wl-paste --type image --watch cliphist store")
     -- Force hyprpaper onto the Intel GPU (Mesa). Left alone it picks the NVIDIA
     -- GPU and keeps it awake (~5 W) just to show a still wallpaper.
     hl.exec_cmd("__EGL_VENDOR_LIBRARY_FILENAMES=/usr/share/glvnd/egl_vendor.d/50_mesa.json hyprpaper")
@@ -174,7 +179,8 @@ hl.bind(key("F"), hl.dsp.exec_cmd("firefox"))
 hl.bind(key("W"), hl.dsp.exec_cmd("brave-browser"))
 hl.bind(key("E"), hl.dsp.exec_cmd(fileManager))
 hl.bind(key("space"), hl.dsp.exec_cmd(menu)) -- app launcher
-hl.bind(key("SHIFT + W"), hl.dsp.exec_cmd("clipman pick -t rofi")) -- clipboard history
+hl.bind(key("SHIFT + W"), hl.dsp.exec_cmd(scripts .. "clipboard.sh")) -- clipboard history (text + images)
+hl.bind(key("R"), hl.dsp.exec_cmd(scripts .. "nightlight.sh"))         -- toggle night light
 
 -- Windows
 hl.bind(key("C"), hl.dsp.window.close())
@@ -232,12 +238,13 @@ hl.bind("CTRL + ALT + Q", hl.dsp.exec_cmd("systemctl suspend"))
 
 -- Media / brightness keys
 local held = { locked = true, repeating = true }
-hl.bind("XF86AudioRaiseVolume",  hl.dsp.exec_cmd("wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 5%+"), held)
-hl.bind("XF86AudioLowerVolume",  hl.dsp.exec_cmd("wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-"),      held)
-hl.bind("XF86AudioMute",         hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"),     held)
-hl.bind("XF86AudioMicMute",      hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"),   held)
-hl.bind("XF86MonBrightnessUp",   hl.dsp.exec_cmd("brightnessctl -e4 -n2 set 5%+"),                  held)
-hl.bind("XF86MonBrightnessDown", hl.dsp.exec_cmd("brightnessctl -e4 -n2 set 5%-"),                  held)
+-- swayosd-client changes the value AND shows a pop-up slider (volume capped at 100%)
+hl.bind("XF86AudioRaiseVolume",  hl.dsp.exec_cmd("swayosd-client --output-volume raise"),      held)
+hl.bind("XF86AudioLowerVolume",  hl.dsp.exec_cmd("swayosd-client --output-volume lower"),      held)
+hl.bind("XF86AudioMute",         hl.dsp.exec_cmd("swayosd-client --output-volume mute-toggle"), held)
+hl.bind("XF86AudioMicMute",      hl.dsp.exec_cmd("swayosd-client --input-volume mute-toggle"),  held)
+hl.bind("XF86MonBrightnessUp",   hl.dsp.exec_cmd("swayosd-client --brightness raise"),         held)
+hl.bind("XF86MonBrightnessDown", hl.dsp.exec_cmd("swayosd-client --brightness lower"),         held)
 hl.bind("XF86AudioNext",  hl.dsp.exec_cmd("playerctl next"),       { locked = true })
 hl.bind("XF86AudioPause", hl.dsp.exec_cmd("playerctl play-pause"), { locked = true })
 hl.bind("XF86AudioPlay",  hl.dsp.exec_cmd("playerctl play-pause"), { locked = true })
@@ -264,5 +271,14 @@ hl.window_rule({
     match  = { class = "org.gnome.Calendar" },
     float  = true,
     size   = "760 560",
+    center = true,
+})
+
+-- Settings apps open as floating, centered windows instead of being tiled
+hl.window_rule({
+    name   = "settings-popups",
+    match  = { class = "^(org.pulseaudio.pavucontrol|pavucontrol|blueman-manager|.blueman-manager-wrapped|nm-connection-editor|gdm-settings|io.github.realmazharhussain.GdmSettings)$" },
+    float  = true,
+    size   = "900 620",
     center = true,
 })
