@@ -148,7 +148,7 @@ hl.bind(key("Q"), hl.dsp.exec_cmd(terminal))
 hl.bind(key("F"), hl.dsp.exec_cmd("firefox"))
 hl.bind(key("W"), hl.dsp.exec_cmd("brave-browser"))
 hl.bind(key("E"), hl.dsp.exec_cmd(fileManager))
-hl.bind(key("R"), hl.dsp.exec_cmd(menu))
+hl.bind(key("space"), hl.dsp.exec_cmd(menu)) -- app launcher
 hl.bind(key("SHIFT + W"), hl.dsp.exec_cmd("clipman pick -t rofi")) -- clipboard history
 
 -- Windows

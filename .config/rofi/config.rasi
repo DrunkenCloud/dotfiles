@@ -1,9 +1,10 @@
 configuration {
     modes: [ drun, window, run, combi ];
     combi-modes: [ window, drun, run ];
-    show-icons: true;
-    icon-theme: "Yaru-magenta-dark";
-    drun-display-format: "{name}";
+    show-icons: false;
+    /* App name, then its category in a smaller dim font, e.g. "Brave Web Browser  Web Browser".
+       The [ ] part is left out when an app has no category. */
+    drun-display-format: "{name}[<span size='small' foreground='#8b7aa8'>   {generic}</span>]";
     display-drun: "";
     display-window: "";
     display-run: "";
@@ -14,40 +15,50 @@ configuration {
 
 @import "colors.rasi"
 
-/* GNOME-style launcher: search pill on top, apps as a simple list */
+/* Text-only launcher: search bar on top, then a clean list */
 window {
-    width: 560px;
-    border-radius: 20px;
-    background-color: @bg;
+    width: 520px;
+    border-radius: 18px;
+    background-color: #14121cff;   /* opaque so text behind doesn't bleed through */
     border: 1px;
-    border-color: #ffffff1a;
-    padding: 18px;
+    border-color: @border-col;
+    padding: 14px;
 }
-mainbox { spacing: 14px; children: [ inputbar, listview ]; }
+mainbox { spacing: 10px; children: [ inputbar, listview ]; }
+
 inputbar {
     background-color: @surface;
-    border-radius: 999px;
-    padding: 10px 18px;
+    border-radius: 12px;
+    padding: 12px 16px;
     spacing: 10px;
-    children: [ icon-search, entry ];
+    children: [ entry, num-filtered-rows ];
 }
-icon-search { expand: false; filename: "system-search-symbolic"; size: 20px; vertical-align: 0.5; }
-entry { placeholder: "Type to search"; placeholder-color: @dim; vertical-align: 0.5; }
+entry {
+    placeholder: "Search apps...";
+    placeholder-color: @dim;
+    font: "Ubuntu Sans 13";
+    vertical-align: 0.5;
+}
+num-filtered-rows { text-color: @dim; font: "Ubuntu Sans 10"; vertical-align: 0.5; expand: false; }
+
 listview {
     columns: 1;
     lines: 8;
     spacing: 2px;
     fixed-height: false;
     scrollbar: false;
+    border: 0px;   /* drop rofi's default dashed separator */
 }
 element {
-    orientation: horizontal;
-    padding: 8px 12px;
-    spacing: 12px;
-    border-radius: 12px;
+    padding: 10px 14px;
+    border-radius: 10px;
     text-color: @fg;
 }
 element normal.normal, element alternate.normal { background-color: transparent; text-color: @fg; }
-element selected.normal { background-color: @hover; text-color: @fg; }
-element-icon { size: 32px; vertical-align: 0.5; }
-element-text { vertical-align: 0.5; font: "Ubuntu Sans 12"; text-color: inherit; }
+element selected.normal {
+    background-color: @hover;
+    text-color: #ffffff;
+    border: 0px 0px 0px 3px;   /* purple accent bar on the left */
+    border-color: @accent;
+}
+element-text { font: "Ubuntu Sans 12"; vertical-align: 0.5; text-color: inherit; }

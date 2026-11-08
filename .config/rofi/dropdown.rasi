@@ -16,7 +16,7 @@ window {
     border-radius: 16px;
     background-color: @bg;
     border: 1px;
-    border-color: #ffffff1a;
+    border-color: @border-col;
     padding: 12px;
 }
 mainbox { spacing: 10px; children: [ inputbar, message, listview ]; }
@@ -29,5 +29,5 @@ element { text-color: @fg; padding: 10px 12px; border-radius: 10px; spacing: 10p
 element normal.normal, element alternate.normal { background-color: transparent; }
 element selected.normal { background-color: @hover; }
 element normal.active, element alternate.active { background-color: @accent; text-color: @accent-fg; }
-element selected.active { background-color: #c768c7; text-color: @accent-fg; }
+element selected.active { background-color: #d8b4fe; text-color: @accent-fg; }
 element-text { font: "JetBrainsMono Nerd Font 11"; text-color: inherit; }

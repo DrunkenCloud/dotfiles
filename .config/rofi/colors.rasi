@@ -1,12 +1,14 @@
-/* GNOME / Yaru-magenta-dark palette (matches your GNOME session) */
+/* Purple palette shared by the launcher and the waybar dropdowns.
+   Same colors as waybar (style.css) and the Hyprland borders. */
 * {
-    bg:        #242424f2;
-    surface:   #ffffff12;
-    hover:     #ffffff1f;
-    fg:        #ffffff;
-    dim:       #9a9a9a;
-    accent:    #b34cb3;
-    accent-fg: #ffffff;
+    bg:        #14121cf0;   /* waybar background */
+    surface:   #c084fc1a;   /* search box, message box */
+    hover:     #c084fc33;   /* highlighted row */
+    fg:        #e9d5ff;
+    dim:       #8b7aa8;
+    accent:    #c084fc;
+    accent-fg: #1a1424;
+    border-col: #a855f78c;  /* waybar border (not "border": that is a real property) */
     font:      "Ubuntu Sans 12";
     background-color: transparent;
     text-color: @fg;
