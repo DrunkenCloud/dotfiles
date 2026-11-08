@@ -24,7 +24,10 @@ hl.on("hyprland.start", function()
     -- and make apps (browsers!) stall at startup, so hand them the new session.
     hl.exec_cmd("dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP HYPRLAND_INSTANCE_SIGNATURE && systemctl --user restart xdg-desktop-portal-hyprland xdg-desktop-portal-gtk xdg-desktop-portal")
     hl.exec_cmd("wl-paste -t text --watch clipman store")
-    hl.exec_cmd("hyprpaper")
+    -- Force hyprpaper onto the Intel GPU (Mesa). Left alone it picks the NVIDIA
+    -- GPU and keeps it awake (~5 W) just to show a still wallpaper.
+    hl.exec_cmd("__EGL_VENDOR_LIBRARY_FILENAMES=/usr/share/glvnd/egl_vendor.d/50_mesa.json hyprpaper")
+    hl.exec_cmd(scripts .. "power-mode.sh") -- battery: 60 Hz + power-saver; AC: 120 Hz + balanced
     hl.exec_cmd("waybar")
     hl.exec_cmd("hypridle")       -- dim / lock / screen off / suspend when idle (hypridle.conf)
     hl.exec_cmd("blueman-applet") -- Bluetooth pairing agent (tray icon disabled in blueman settings)
