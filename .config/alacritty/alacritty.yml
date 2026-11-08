@@ -1,3 +1,0 @@
-window:
-  title: "My Terminal"       # Your custom static title, or leave blank ""
-  dynamic_title: false       # Disable title changes from shell

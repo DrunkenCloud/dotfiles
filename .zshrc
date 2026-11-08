@@ -1,3 +1,4 @@
+
 # --- Zinit install if missing, then load ---
 ZINIT_HOME="${XDG_DATA_HOME:-$HOME/.local/share}/zinit/zinit.git"
 if [[ ! -d "$ZINIT_HOME" ]]; then
@@ -6,11 +7,11 @@ if [[ ! -d "$ZINIT_HOME" ]]; then
 fi
 source "$ZINIT_HOME/zinit.zsh"
 
-# --- Zinit plugins ---
-zinit light zsh-users/zsh-syntax-highlighting
+# --- Zinit plugins (syntax-highlighting must come last) ---
 zinit light zsh-users/zsh-completions
 zinit light zsh-users/zsh-autosuggestions
 zinit light zsh-users/zsh-history-substring-search
+zinit light zsh-users/zsh-syntax-highlighting
 
 # --- History substring search: bind keys and disable highlighting ---
 HISTORY_SUBSTRING_SEARCH_HIGHLIGHT_FOUND=''
@@ -18,6 +19,10 @@ HISTORY_SUBSTRING_SEARCH_HIGHLIGHT_NOT_FOUND=''
 
 bindkey "$terminfo[kcuu1]" history-substring-search-up
 bindkey "$terminfo[kcud1]" history-substring-search-down
+
+# --- Shift+Delete = delete previous word (ghostty takes ctrl+w for close-tab) ---
+# \E[3;2~ is terminfo kDC; same under xterm-ghostty and xterm-256color
+bindkey '^[[3;2~' backward-kill-word
 
 # --- Completions ---
 zstyle ':completion:*' use-cache yes
@@ -27,7 +32,7 @@ compinit -C
 
 # --- Shell History Options ---
 HISTFILE=~/.zsh_history
-HISTSIZE=5000
+HISTSIZE=50000
 SAVEHIST=$HISTSIZE
 setopt APPEND_HISTORY
 setopt EXTENDED_HISTORY
@@ -39,6 +44,46 @@ setopt HIST_REDUCE_BLANKS
 setopt HIST_SAVE_NO_DUPS
 setopt INC_APPEND_HISTORY
 setopt SHARE_HISTORY
+
+# --- Locale ---
+export LANG=en_US.UTF-8
+export LC_CTYPE=en_US.UTF-8
+
+# --- PATH ---
+# typeset -U keeps PATH free of duplicates, even in nested shells.
+# (cargo and foundry are added in ~/.zshenv)
+typeset -U path PATH
+export PNPM_HOME="$HOME/.local/share/pnpm"
+path=(
+  $HOME/.local/bin
+  $HOME/.opencode/bin
+  $PNPM_HOME
+  $PNPM_HOME/bin
+  $path
+  /opt/nvim/bin
+  /opt/anki-launcher
+)
+
+# --- Node (nvm), lazy-loaded ---
+# Sourcing nvm.sh costs ~0.6s per shell. Instead, put the default node's bin dir
+# on PATH directly (so node, npm and global tools like codex/pm2 work instantly)
+# and only load nvm itself the first time you run `nvm`.
+export NVM_DIR="$HOME/.nvm"
+_nvm_default=$(command cat "$NVM_DIR/alias/default" 2>/dev/null)
+if [[ "$_nvm_default" == node || -z "$_nvm_default" ]]; then
+  _nvm_bins=("$NVM_DIR"/versions/node/*/bin(Nn))       # "node" = newest installed
+else
+  _nvm_bins=("$NVM_DIR"/versions/node/v${_nvm_default#v}*/bin(Nn))
+fi
+(( ${#_nvm_bins} )) && path=("${_nvm_bins[-1]}" $path)
+unset _nvm_default _nvm_bins
+
+nvm() {
+  unfunction nvm
+  [[ -s "$NVM_DIR/nvm.sh" ]] && source "$NVM_DIR/nvm.sh"
+  [[ -s "$NVM_DIR/bash_completion" ]] && source "$NVM_DIR/bash_completion"
+  nvm "$@"
+}
 
 # --- Color Support for GNU Tools ---
 if [ -x /usr/bin/dircolors ]; then
@@ -54,44 +99,26 @@ alias ll='ls -alF'
 alias la='ls -A'
 alias l='ls -CF'
 alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
-alias actvenv='source ~/venv/bin/activate'
+alias actvenv='source ./venv/bin/activate'      # venv in the current project
+alias actvenv-home='source ~/venv/bin/activate' # the global ~/venv
 alias tree="tree -I 'node_modules|dist|.git|__pycache__'"
 alias vim="nvim"
-alias actvenv="source ./venv/bin/activate"
 alias ac="ani-cli"
 alias wgup="sudo wg-quick up wg0"
 alias wgdown="sudo wg-quick down wg0"
 alias steam-kill='pkill -9 -f steam'
 alias cursor="cursor --no-sandbox"
+alias bat="batcat"
+alias cat="batcat"
+alias wcd="warp-cli disconnect"
+alias wcc="warp-cli connect"
+alias wcs="warp-cli status"
+alias check-tsa='curl -s -o /dev/null -w "TSA status: %{http_code}\n" -X POST -H "Content-Type: application/timestamp-query" --data-binary "x" http://timestamp.digicert.com && echo "(400 = reachable, 000 = blocked)"'
+
 # --- Load custom bash aliases, if present ---
 [ -f ~/.bash_aliases ] && source ~/.bash_aliases
 
-# --- Lazy-load nvm when needed ---
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-
-# --- Starship prompt ---
-if command -v starship >/dev/null 2>&1; then
-  eval "$(starship init zsh)"
-fi
-
-# --- PATH modifications ---
-export PATH="$HOME/.local/bin:$PATH"
-export PATH="$PATH:/usr/local/go/bin"
-export FLYCTL_INSTALL="/home/drunkencloud/.fly"
-export PATH="$FLYCTL_INSTALL/bin:$PATH"
-export PNPM_HOME="/home/drunkencloud/.local/share/pnpm"
-case ":$PATH:" in
-  *":$PNPM_HOME:"*) ;; # already in PATH
-  *) export PATH="$PNPM_HOME:$PATH" ;;
-esac
-export PATH="$PATH:/opt/nvim"
-export PATH="$PATH:/opt/gradle/gradle-7.14.2/bin"
-export LC_CTYPE=en_US.UTF-8
-export LANG=en_US.UTF-8
-# --- End of .zshrc ---
-source $HOME/.cargo/env
-
+# --- Tool integrations ---
 [[ "$TERM_PROGRAM" == "kiro" ]] && . "$(kiro --locate-shell-integration-path zsh)"
 eval "$(zoxide init zsh)"
+command -v starship >/dev/null 2>&1 && eval "$(starship init zsh)"

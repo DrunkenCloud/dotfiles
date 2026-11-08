@@ -126,4 +126,6 @@ export PATH=$PATH:/usr/local/go/bin
 export PATH="$HOME/.local/bin:$PATH"
 . "$HOME/.cargo/env"
 
-[[ "$TERM_PROGRAM" == "kiro" ]] && . "$(kiro --locate-shell-integration-path bash)"
+
+alias check-tsa='curl -s -o /dev/null -w "TSA status: %{http_code}
+" -X POST -H "Content-Type: application/timestamp-query" --data-binary "x" http://timestamp.digicert.com && echo "(400 = reachable, 000 = blocked)"'
