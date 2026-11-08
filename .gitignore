@@ -1,0 +1,4 @@
+# editor/tool backups
+*.bak
+*.bak[0-9]
+*.orig
