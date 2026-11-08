@@ -19,6 +19,10 @@ local scripts     = "~/.config/hypr/scripts/"
 --- AUTOSTART ---
 -----------------
 hl.on("hyprland.start", function()
+    -- Portals (dark mode, file pickers, screen sharing) are user services that
+    -- outlive Hyprland. After a crash/re-login they stay tied to the dead session
+    -- and make apps (browsers!) stall at startup, so hand them the new session.
+    hl.exec_cmd("dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP HYPRLAND_INSTANCE_SIGNATURE && systemctl --user restart xdg-desktop-portal-hyprland xdg-desktop-portal-gtk xdg-desktop-portal")
     hl.exec_cmd("wl-paste -t text --watch clipman store")
     hl.exec_cmd("hyprpaper")
     hl.exec_cmd("waybar")
