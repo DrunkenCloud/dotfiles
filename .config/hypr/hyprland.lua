@@ -26,6 +26,7 @@ hl.on("hyprland.start", function()
     hl.exec_cmd("wl-paste -t text --watch clipman store")
     hl.exec_cmd("hyprpaper")
     hl.exec_cmd("waybar")
+    hl.exec_cmd("hypridle")       -- dim / lock / screen off / suspend when idle (hypridle.conf)
     hl.exec_cmd("blueman-applet") -- Bluetooth pairing agent (tray icon disabled in blueman settings)
 end)
 
@@ -87,6 +88,9 @@ hl.config({
         disable_hyprland_logo    = true,
         disable_splash_rendering = true,
         force_default_wallpaper  = 0,
+        -- If hyprlock ever crashes, allow a new hyprlock to take over the lock
+        -- instead of leaving the screen blocked.
+        allow_session_lock_restore = true,
     },
 
     input = {
@@ -189,6 +193,9 @@ hl.bind(key("mouse_up"),   hl.dsp.focus({ workspace = "e-1" }))
 -- Mouse move/resize
 hl.bind(key("mouse:272"), hl.dsp.window.drag(),   { mouse = true })
 hl.bind(key("mouse:273"), hl.dsp.window.resize(), { mouse = true })
+
+-- Lock screen
+hl.bind(key("Escape"), hl.dsp.exec_cmd("pidof hyprlock || hyprlock")) -- works even if hypridle is not running
 
 -- Power
 hl.bind("CTRL + ALT + S", hl.dsp.exec_cmd("systemctl poweroff"))
