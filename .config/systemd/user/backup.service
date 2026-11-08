@@ -1,5 +1,5 @@
 [Unit]
-Description=Encrypted backup to Google Drive (restic)
+Description=Encrypted backup to MEGA (restic)
 # Only on AC power, so it never drains the battery
 ConditionACPower=true
 Wants=network-online.target

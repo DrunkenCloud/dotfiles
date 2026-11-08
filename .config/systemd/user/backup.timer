@@ -1,5 +1,5 @@
 [Unit]
-Description=Daily encrypted backup to Google Drive
+Description=Daily encrypted backup to MEGA
 
 [Timer]
 OnCalendar=daily

@@ -1,18 +1,26 @@
 #!/bin/bash
-# Encrypted backup of the paths in paths.txt to Google Drive (restic + rclone).
+# Encrypted backup of the paths in paths.txt to MEGA (restic + rclone).
 # Runs daily from the systemd user timer backup.timer (only on AC power).
 # Run it by hand any time:  ~/dotfiles/backup/backup.sh
 #
 # Restore (on this or a new laptop, after setting up rclone + the password):
-#   restic -r rclone:gdrive:laptop-backup snapshots
-#   restic -r rclone:gdrive:laptop-backup restore latest --target ~/restore
+#   restic -r rclone:mega:laptop-backup snapshots
+#   restic -r rclone:mega:laptop-backup restore latest --target ~/restore
 
 set -uo pipefail
-export RESTIC_REPOSITORY="rclone:gdrive:laptop-backup"
+
+# Keep the laptop awake while backing up: hypridle would otherwise suspend after
+# 30 min idle and cut the upload. (Closing the lid still suspends; restic keeps
+# what was already uploaded and continues from there next run.)
+if [ -z "${BACKUP_INHIBITED:-}" ]; then
+    export BACKUP_INHIBITED=1
+    exec systemd-inhibit --what=sleep:idle --who=backup --why="Backup in progress" --mode=block "$0" "$@"
+fi
+export RESTIC_REPOSITORY="rclone:mega:laptop-backup"
 export RESTIC_PASSWORD_FILE="$HOME/.config/restic/password"
 HERE="$(dirname "$(readlink -f "$0")")"
-# Google Drive can be slow to answer the first request; restic only waits 1 min
-# for its rclone connection by default, which caused "context deadline exceeded".
+# Cloud storage can be slow to answer the first request; restic only waits 1 min
+# for its rclone connection by default ("context deadline exceeded").
 OPTS=(-o rclone.timeout=5m)
 
 notify() { notify-send -a Backup "$@" 2>/dev/null || true; }
