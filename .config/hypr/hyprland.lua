@@ -2,6 +2,28 @@
 -- Migrated from hyprland.conf. Reference: /usr/share/hypr/hyprland.lua
 -- Validate after editing:  Hyprland --verify-config -c ~/.config/hypr/hyprland.lua
 
+-----------
+--- GPU ---
+-----------
+-- Use only the Intel GPU (it drives the built-in screen). Hyprland then never
+-- opens the NVIDIA GPU, so it can power off when unused (~5 W at idle).
+-- Side effect: the HDMI port is wired to the NVIDIA GPU and won't work here
+-- (use Windows for external monitors). Apps can still use NVIDIA on demand
+-- (e.g. whisper dictation), it just wakes up for them.
+-- Card numbers can swap between boots, so find Intel (vendor 0x8086) by ID.
+-- If none is found, nothing is set and Hyprland uses its default behaviour.
+for i = 0, 9 do
+    local f = io.open("/sys/class/drm/card" .. i .. "/device/vendor", "r")
+    if f then
+        local vendor = f:read("*l")
+        f:close()
+        if vendor == "0x8086" then
+            hl.env("AQ_DRM_DEVICES", "/dev/dri/card" .. i)
+            break
+        end
+    end
+end
+
 ----------------
 --- MONITORS ---
 ----------------
