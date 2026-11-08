@@ -20,7 +20,12 @@ if [ "$(nmcli -t -f WIFI g)" = enabled ]; then
     order=()
     while IFS=: read -r inuse signal sec ssid; do
         [ -z "$ssid" ] && continue
-        if [ -n "$sec" ] && [ "$sec" != "--" ]; then secured[$ssid]=1; best_sec[$ssid]=$sec; fi
+        if [ -n "$sec" ] && [ "$sec" != "--" ]; then
+            secured[$ssid]=1
+            # Strongest wins: once any AP for this SSID offers WPA3, never let a
+            # (possibly spoofed) WPA2-only AP downgrade the profile we create.
+            [[ $sec == *WPA3* || ${best_sec[$ssid]} == WPA3 ]] && best_sec[$ssid]=WPA3 || best_sec[$ssid]=$sec
+        fi
         [ -n "${seen[$ssid]}" ] && { [ "$inuse" = "*" ] && seen[$ssid]="*:$signal"; continue; }
         seen[$ssid]="$inuse:$signal"; order+=("$ssid")
     done < <(nmcli -t --escape no -f IN-USE,SIGNAL,SECURITY,SSID dev wifi list --rescan auto | sort -t: -k1,1r -k2,2nr)
@@ -56,7 +61,7 @@ case "$act" in
             pw=$(rofi -dmenu -password -p "Password" -theme "$THEME" -mesg "$(esc "$ssid")" -l 0) || exit 0
             # Create the profile, then set the key over stdin (nmcli's editor), so the
             # password never appears in a process command line visible to `ps`.
-            [[ $sec == *WPA3* && $sec != *WPA2* ]] && km=sae || km=wpa-psk
+            [[ $sec == WPA3 ]] && km=sae || km=wpa-psk   # WPA3 (incl. WPA2/3 transition APs) -> SAE
             nmcli c add type wifi con-name "$ssid" ssid "$ssid" wifi-sec.key-mgmt "$km" >/dev/null 2>&1
             printf 'set wifi-sec.psk %s\nsave\nquit\n' "$pw" | nmcli c edit id "$ssid" >/dev/null 2>&1
             unset pw
