@@ -13,7 +13,7 @@ vim.opt.number = true
 vim.opt.relativenumber = true
 
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
-if not vim.loop.fs_stat(lazypath) then
+if not vim.uv.fs_stat(lazypath) then
   vim.fn.system({
     "git", "clone", "--filter=blob:none",
     "https://github.com/folke/lazy.nvim.git",
@@ -30,6 +30,21 @@ require("lazy").setup({
   },
   {
     "neovim/nvim-lspconfig",
+  },
+  -- Mason installs language servers into nvim's data dir (:Mason to manage them)
+  {
+    "mason-org/mason.nvim",
+    config = function()
+      require("mason").setup()
+    end,
+  },
+  {
+    "mason-org/mason-lspconfig.nvim",
+    dependencies = { "mason-org/mason.nvim", "neovim/nvim-lspconfig" },
+    opts = {
+      ensure_installed = { "lua_ls", "pyright", "ts_ls", "clangd", "gopls" },
+      automatic_enable = false, -- servers are enabled explicitly in lsp.lua
+    },
   },
   {
     "kevinhwang91/nvim-ufo",
@@ -51,7 +66,7 @@ require("lazy").setup({
     build = ":TSUpdate",
     config = function()
       require'nvim-treesitter.configs'.setup {
-        ensure_installed = { "c", "cpp", "lua", "python", "javascript", "typescript" },
+        ensure_installed = { "c", "cpp", "lua", "python", "javascript", "typescript", "go" },
         sync_install = false,
         auto_install = true,
         highlight = {
@@ -91,6 +106,7 @@ require("lazy").setup({
       "hrsh7th/cmp-buffer",
       "hrsh7th/cmp-path",
       "L3MON4D3/LuaSnip",
+      "saadparwaiz1/cmp_luasnip",
     },
   },
 })

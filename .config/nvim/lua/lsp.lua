@@ -31,6 +31,22 @@ vim.lsp.config.ts_ls = {
 vim.lsp.config.clangd = {
   capabilities = capabilities,
 }
+vim.lsp.config.gopls = {
+  capabilities = capabilities,
+  settings = {
+    gopls = {
+      analyses = {
+        unusedparams = true,
+      },
+      staticcheck = true,
+      gofumpt = true,
+    },
+  },
+}
+
+-- Start these servers for their filetypes (Neovim 0.11+ needs this explicitly;
+-- the binaries are installed by mason, see minimal.lua)
+vim.lsp.enable({ "lua_ls", "pyright", "ts_ls", "clangd", "gopls" })
 
 -- Completion setup
 cmp.setup({
@@ -63,7 +79,7 @@ vim.diagnostic.config({
     focusable = false,
     style = "minimal",
     border = "rounded",
-    source = "always",
+    source = true,
     header = "",
     prefix = "",
   },
