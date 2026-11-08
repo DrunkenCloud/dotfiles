@@ -6,9 +6,14 @@
 #               and goes back to "power-saver" after ~1 min of calm.
 # Plug/unplug is picked up instantly via udev; load is sampled every INTERVAL s.
 #
-# Testing overrides: POWER_MODE_AC=<file>  INTERVAL=  UP_AFTER=  DOWN_AFTER=
+# Also: notification at 15% battery, urgent one at 5%.
+#
+# Testing overrides: POWER_MODE_AC=<file> POWER_MODE_BAT=<file> INTERVAL= UP_AFTER= DOWN_AFTER=
 
 AC="${POWER_MODE_AC:-/sys/class/power_supply/AC/online}"
+BAT="${POWER_MODE_BAT:-/sys/class/power_supply/BAT0/capacity}"
+WARN_AT=15            # % : normal "battery low" notification
+CRIT_AT=5             # % : urgent notification that stays until dismissed
 INTERVAL=${INTERVAL:-10}
 HIGH_TENTHS=20        # >= 2.0 cores busy counts as "working"
 LOW_TENTHS=8          # <= 0.8 cores busy counts as "calm"
@@ -42,14 +47,28 @@ set_profile() {
     powerprofilesctl set "$1"; profile=$1; log "profile -> $1"
 }
 
+warned=""             # "", "low" or "crit": each warning is shown once per discharge
+battery_warnings() {
+    local cap
+    cap=$(< "$BAT") || return
+    if (( cap <= CRIT_AT )) && [ "$warned" != crit ]; then
+        notify-send -u critical -i battery-caution "Battery critical: ${cap}%" "Plug in now, the laptop will shut down soon."
+        warned=crit
+    elif (( cap <= WARN_AT )) && [ -z "$warned" ]; then
+        notify-send -i battery-low "Battery low: ${cap}%" "Consider plugging in."
+        warned=low
+    fi
+}
+
 hot=0 calm=0
 tick() {
     local on b
     on=$(< "$AC") || return
     busy_tenths; b=$BUSY
     if [ "$on" = 1 ]; then
-        set_profile balanced; hot=0; calm=0; return
+        set_profile balanced; hot=0; calm=0; warned=""; return
     fi
+    battery_warnings
     if   (( b >= HIGH_TENTHS )); then hot=$((hot + 1)); calm=0
     elif (( b <= LOW_TENTHS ));  then calm=$((calm + 1)); hot=0
     fi

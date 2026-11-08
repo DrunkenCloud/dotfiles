@@ -48,6 +48,7 @@ hl.on("hyprland.start", function()
     hl.exec_cmd("mako")                          -- notifications (themed in ~/.config/mako/config)
     hl.exec_cmd("/usr/libexec/hyprpolkitagent")  -- password prompts for GUI apps that need admin rights
     hl.exec_cmd("swayosd-server")                -- volume / brightness pop-up
+    hl.exec_cmd("udiskie --automount --notify --smart-tray") -- auto-mount USB drives; eject icon in waybar while one is plugged in
     -- Clipboard history (text AND images) for SUPER+SHIFT+W
     hl.exec_cmd("wl-paste --type text --watch cliphist store")
     hl.exec_cmd("wl-paste --type image --watch cliphist store")
@@ -170,85 +171,93 @@ hl.gesture({ fingers = 3, direction = "horizontal", action = "workspace" })
 -------------------
 --- KEYBINDINGS ---
 -------------------
+-- Every bind has a description: SUPER + / lists them all (scripts/keybinds.sh).
 local mainMod = "SUPER"
 local function key(k) return mainMod .. " + " .. k end
+local function bind(keys, action, desc, opts)
+    opts = opts or {}
+    opts.description = desc
+    hl.bind(keys, action, opts)
+end
 
 -- Apps
-hl.bind(key("Q"), hl.dsp.exec_cmd(terminal))
-hl.bind(key("F"), hl.dsp.exec_cmd("firefox"))
-hl.bind(key("W"), hl.dsp.exec_cmd("brave-browser"))
-hl.bind(key("E"), hl.dsp.exec_cmd(fileManager))
-hl.bind(key("space"), hl.dsp.exec_cmd(menu)) -- app launcher
-hl.bind(key("SHIFT + W"), hl.dsp.exec_cmd(scripts .. "clipboard.sh")) -- clipboard history (text + images)
-hl.bind(key("R"), hl.dsp.exec_cmd(scripts .. "nightlight.sh"))         -- toggle night light
+bind(key("Q"),         hl.dsp.exec_cmd(terminal),                   "Terminal")
+bind(key("F"),         hl.dsp.exec_cmd("firefox"),                  "Firefox")
+bind(key("W"),         hl.dsp.exec_cmd("brave-browser"),            "Brave")
+bind(key("E"),         hl.dsp.exec_cmd(fileManager),                "File manager")
+bind(key("space"),     hl.dsp.exec_cmd(menu),                       "App launcher")
+bind(key("slash"),     hl.dsp.exec_cmd(scripts .. "keybinds.sh"),   "Show this keybinding list")
+bind(key("SHIFT + W"), hl.dsp.exec_cmd(scripts .. "clipboard.sh"),  "Clipboard history (text + images)")
+bind(key("R"),         hl.dsp.exec_cmd(scripts .. "nightlight.sh"), "Toggle night light")
+bind(key("D"),         hl.dsp.exec_cmd(scripts .. "dictate.sh"),    "Voice typing: start / stop and type")
 
 -- Windows
-hl.bind(key("C"), hl.dsp.window.close())
-hl.bind(key("M"), hl.dsp.exit())
-hl.bind(key("V"), hl.dsp.window.float({ action = "toggle" }))
-hl.bind(key("P"), hl.dsp.window.pseudo())
-hl.bind(key("T"), hl.dsp.layout("togglesplit")) -- dwindle
+bind(key("C"), hl.dsp.window.close(),                     "Close window")
+bind(key("M"), hl.dsp.exit(),                             "Log out (exit Hyprland)")
+bind(key("V"), hl.dsp.window.float({ action = "toggle" }), "Toggle floating")
+bind(key("P"), hl.dsp.window.pseudo(),                    "Pseudo-tile window")
+bind(key("T"), hl.dsp.layout("togglesplit"),              "Toggle split direction")
 
--- Screenshot / recording
-hl.bind(key("SHIFT + S"), hl.dsp.exec_cmd(scripts .. "screenshot.sh"))
-hl.bind(key("SHIFT + R"), hl.dsp.exec_cmd(scripts .. "record.sh"))        -- toggle start/stop
-hl.bind(key("SHIFT + C"), hl.dsp.exec_cmd("pkill -INT wf-recorder"))      -- emergency stop
-
--- Voice typing (whisper.cpp, offline): press to start listening, press again to type it
-hl.bind(key("D"), hl.dsp.exec_cmd(scripts .. "dictate.sh"))
+-- Screenshots / recording
+bind(key("SHIFT + S"), hl.dsp.exec_cmd(scripts .. "screenshot.sh"),        "Screenshot: select region")
+bind("Print",          hl.dsp.exec_cmd(scripts .. "screenshot.sh full"),   "Screenshot: whole screen")
+bind("SHIFT + Print",  hl.dsp.exec_cmd(scripts .. "screenshot.sh window"), "Screenshot: focused window")
+bind(key("SHIFT + R"), hl.dsp.exec_cmd(scripts .. "record.sh"),            "Screen recording: start / stop")
+bind(key("SHIFT + C"), hl.dsp.exec_cmd("pkill -INT wf-recorder"),          "Screen recording: emergency stop")
 
 -- Focus: SUPER + hjkl / arrows; move window: SUPER + SHIFT + hjkl
 local dirs = { H = "left", L = "right", K = "up", J = "down",
                left = "left", right = "right", up = "up", down = "down" }
 for k, dir in pairs(dirs) do
-    hl.bind(key(k), hl.dsp.focus({ direction = dir }))
+    bind(key(k), hl.dsp.focus({ direction = dir }), "Focus " .. dir)
 end
 for _, k in ipairs({ "H", "J", "K", "L" }) do
-    hl.bind(key("SHIFT + " .. k), hl.dsp.window.move({ direction = dirs[k] }))
+    bind(key("SHIFT + " .. k), hl.dsp.window.move({ direction = dirs[k] }), "Move window " .. dirs[k])
 end
-hl.bind("ALT + Tab", hl.dsp.window.cycle_next())
-hl.bind("ALT + Tab", hl.dsp.window.bring_to_top())
+bind("ALT + Tab", hl.dsp.window.cycle_next(),   "Cycle windows")
+bind("ALT + Tab", hl.dsp.window.bring_to_top(), "Cycle windows (bring to front)")
 
 -- Workspaces 1-10
 for i = 1, 10 do
     local k = i % 10
-    hl.bind(key(k),              hl.dsp.focus({ workspace = i }))
-    hl.bind(key("SHIFT + " .. k), hl.dsp.window.move({ workspace = i }))
+    bind(key(k),              hl.dsp.focus({ workspace = i }),       "Go to workspace " .. i)
+    bind(key("SHIFT + " .. k), hl.dsp.window.move({ workspace = i }), "Move window to workspace " .. i)
 end
 
 -- Scratchpad
-hl.bind(key("S"),       hl.dsp.workspace.toggle_special("magic"))
-hl.bind(key("ALT + S"), hl.dsp.window.move({ workspace = "special:magic" }))
+bind(key("S"),       hl.dsp.workspace.toggle_special("magic"),             "Show / hide scratchpad")
+bind(key("ALT + S"), hl.dsp.window.move({ workspace = "special:magic" }), "Move window to scratchpad")
 
 -- Scroll through workspaces
-hl.bind(key("mouse_down"), hl.dsp.focus({ workspace = "e+1" }))
-hl.bind(key("mouse_up"),   hl.dsp.focus({ workspace = "e-1" }))
+bind(key("mouse_down"), hl.dsp.focus({ workspace = "e+1" }), "Next workspace (scroll)")
+bind(key("mouse_up"),   hl.dsp.focus({ workspace = "e-1" }), "Previous workspace (scroll)")
 
 -- Mouse move/resize
-hl.bind(key("mouse:272"), hl.dsp.window.drag(),   { mouse = true })
-hl.bind(key("mouse:273"), hl.dsp.window.resize(), { mouse = true })
+bind(key("mouse:272"), hl.dsp.window.drag(),   "Drag window (left mouse)",    { mouse = true })
+bind(key("mouse:273"), hl.dsp.window.resize(), "Resize window (right mouse)", { mouse = true })
 
--- Lock screen
-hl.bind(key("Escape"), hl.dsp.exec_cmd("pidof hyprlock || hyprlock")) -- works even if hypridle is not running
+-- Lock screen (works even if hypridle is not running)
+bind(key("Escape"), hl.dsp.exec_cmd("pidof hyprlock || hyprlock"), "Lock screen")
 
 -- Power
-hl.bind("CTRL + ALT + S", hl.dsp.exec_cmd("systemctl poweroff"))
-hl.bind("CTRL + ALT + R", hl.dsp.exec_cmd("systemctl reboot"))
-hl.bind("CTRL + ALT + Q", hl.dsp.exec_cmd("systemctl suspend"))
+bind("CTRL + ALT + S", hl.dsp.exec_cmd("systemctl poweroff"), "Shut down")
+bind("CTRL + ALT + R", hl.dsp.exec_cmd("systemctl reboot"),   "Reboot")
+bind("CTRL + ALT + Q", hl.dsp.exec_cmd("systemctl suspend"),  "Suspend")
 
--- Media / brightness keys
-local held = { locked = true, repeating = true }
--- swayosd-client changes the value AND shows a pop-up slider (volume capped at 100%)
-hl.bind("XF86AudioRaiseVolume",  hl.dsp.exec_cmd("swayosd-client --output-volume raise"),      held)
-hl.bind("XF86AudioLowerVolume",  hl.dsp.exec_cmd("swayosd-client --output-volume lower"),      held)
-hl.bind("XF86AudioMute",         hl.dsp.exec_cmd("swayosd-client --output-volume mute-toggle"), held)
-hl.bind("XF86AudioMicMute",      hl.dsp.exec_cmd("swayosd-client --input-volume mute-toggle"),  held)
-hl.bind("XF86MonBrightnessUp",   hl.dsp.exec_cmd("swayosd-client --brightness raise"),         held)
-hl.bind("XF86MonBrightnessDown", hl.dsp.exec_cmd("swayosd-client --brightness lower"),         held)
-hl.bind("XF86AudioNext",  hl.dsp.exec_cmd("playerctl next"),       { locked = true })
-hl.bind("XF86AudioPause", hl.dsp.exec_cmd("playerctl play-pause"), { locked = true })
-hl.bind("XF86AudioPlay",  hl.dsp.exec_cmd("playerctl play-pause"), { locked = true })
-hl.bind("XF86AudioPrev",  hl.dsp.exec_cmd("playerctl previous"),   { locked = true })
+-- Media / brightness keys. swayosd-client changes the value AND shows a pop-up
+-- slider (volume capped at 100%). Options are fresh tables per bind because
+-- bind() adds a description to them.
+local function held() return { locked = true, repeating = true } end
+bind("XF86AudioRaiseVolume",  hl.dsp.exec_cmd("swayosd-client --output-volume raise"),       "Volume up",       held())
+bind("XF86AudioLowerVolume",  hl.dsp.exec_cmd("swayosd-client --output-volume lower"),       "Volume down",     held())
+bind("XF86AudioMute",         hl.dsp.exec_cmd("swayosd-client --output-volume mute-toggle"), "Mute",            held())
+bind("XF86AudioMicMute",      hl.dsp.exec_cmd("swayosd-client --input-volume mute-toggle"),  "Mute microphone", held())
+bind("XF86MonBrightnessUp",   hl.dsp.exec_cmd("swayosd-client --brightness raise"),          "Brightness up",   held())
+bind("XF86MonBrightnessDown", hl.dsp.exec_cmd("swayosd-client --brightness lower"),          "Brightness down", held())
+bind("XF86AudioNext",  hl.dsp.exec_cmd("playerctl next"),       "Next track",     { locked = true })
+bind("XF86AudioPause", hl.dsp.exec_cmd("playerctl play-pause"), "Play / pause",   { locked = true })
+bind("XF86AudioPlay",  hl.dsp.exec_cmd("playerctl play-pause"), "Play / pause",   { locked = true })
+bind("XF86AudioPrev",  hl.dsp.exec_cmd("playerctl previous"),   "Previous track", { locked = true })
 
 --------------------
 --- WINDOW RULES ---
