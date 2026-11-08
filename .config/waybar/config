@@ -1,33 +1,25 @@
 {
-  "style.css": "~/.config/waybar/style.css",
   "layer": "top",
   "position": "top",
-
-  "modules-left": ["hyprland/workspaces"],
-  "modules-center": ["clock"],
+  "modules-left": [
+    "hyprland/workspaces",
+    "custom/recording"
+  ],
+  "modules-center": [
+    "clock"
+  ],
   "modules-right": [
+    "cpu",
+    "memory",
+    "temperature",
     "pulseaudio",
-    "battery",
     "network",
-    "custom/bluetooth",
+    "bluetooth",
+    "battery",
     "tray"
   ],
-
   "hyprland/workspaces": {
-    "format": "{icon}",
-    "format-icons": {
-      "1": "",
-      "2": "",
-      "3": "",
-      "4": "",
-      "5": "",
-      "6": "",
-      "7": "",
-      "8": "",
-      "9": "",
-      "10": "",
-      "active": ""
-    },
+    "format": "",
     "persistent-workspaces": {
       "1": [],
       "2": [],
@@ -36,32 +28,97 @@
       "5": []
     }
   },
-
   "clock": {
-    "format": "{:%H:%M}"
+    "format": "{:%H:%M}",
+    "format-alt": "{:%a %d %b  %H:%M}",
+    "tooltip-format": "<tt>{calendar}</tt>\n\nRight-click: open Calendar",
+    "on-click-right": "gnome-calendar"
   },
-
   "pulseaudio": {
     "format": "{volume}% {icon}",
     "format-muted": "muted ",
-    "format-icons": ["", "", ""]
+    "format-icons": [
+      "",
+      "",
+      ""
+    ],
+    "on-click": "pavucontrol",
+    "on-click-right": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle",
+    "scroll-step": 5
   },
-
   "battery": {
     "format": "{capacity}% {icon}",
-    "format-icons": ["", "", "", "", ""]
+    "format-icons": [
+      "",
+      "",
+      "",
+      "",
+      ""
+    ],
+    "states": {
+      "warning": 25,
+      "critical": 10
+    },
+    "format-charging": "{capacity}% ",
+    "tooltip-format": "{timeTo}"
   },
-
   "network": {
-    "format-wifi": "{essid} ",
-    "format-ethernet": "{ifname} ",
-    "format-disconnected": "Disconnected ⚠"
+    "format-wifi": " {essid}",
+    "format-ethernet": " {ifname}",
+    "format-disconnected": " offline",
+    "on-click": "~/.config/waybar/scripts/wifi-menu.sh",
+    "on-click-right": "nm-connection-editor",
+    "tooltip-format": "{ifname}  {ipaddr}\n⇣ {bandwidthDownBytes}  ⇡ {bandwidthUpBytes}",
+    "interval": 3,
+    "tooltip-format-wifi": "{essid} ({signalStrength}%)  {ipaddr}\n⇣ {bandwidthDownBytes}  ⇡ {bandwidthUpBytes}"
   },
-  
-  "custom/bluetooth": {
-    "format": "{text}",
-    "exec": "~/.config/waybar/scripts/bluetooth.sh",
+  "height": 38,
+  "margin-top": 6,
+  "margin-left": 6,
+  "margin-right": 6,
+  "spacing": 4,
+  "bluetooth": {
+    "format": " on",
+    "format-off": " off",
+    "format-disabled": " off",
+    "format-connected": " {device_alias}",
+    "tooltip-format-connected": "{device_enumerate}",
+    "tooltip-format-enumerate-connected": "{device_alias}  {device_battery_percentage}%",
+    "on-click": "~/.config/waybar/scripts/bt-menu.sh",
+    "on-click-right": "blueman-manager"
+  },
+  "cpu": {
+    "format": " {usage}%",
+    "interval": 2,
+    "states": {
+      "warning": 70,
+      "critical": 90
+    },
+    "on-click": "alacritty -e htop"
+  },
+  "memory": {
+    "format": " {percentage}%",
+    "interval": 3,
+    "tooltip-format": "{used:0.1f} / {total:0.1f} GiB used",
+    "states": {
+      "warning": 75,
+      "critical": 90
+    },
+    "on-click": "alacritty -e htop"
+  },
+  "temperature": {
+    "format": " {temperatureC}°C",
+    "critical-threshold": 85,
+    "interval": 3
+  },
+  "tray": {
+    "spacing": 8
+  },
+  "custom/recording": {
+    "exec": "pgrep -x wf-recorder >/dev/null && echo '{\"text\":\"● REC\",\"class\":\"on\",\"tooltip\":\"Recording, click to stop\"}' || echo '{\"text\":\"\"}'",
     "return-type": "json",
-    "interval": 10
+    "interval": 2,
+    "signal": 8,
+    "on-click": "~/.config/hypr/scripts/record.sh"
   }
 }

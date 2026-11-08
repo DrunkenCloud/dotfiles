@@ -1,0 +1,33 @@
+/* Quick-settings style dropdown used by the waybar Wi-Fi / Bluetooth menus */
+@import "colors.rasi"
+
+configuration {
+    hover-select: true;
+    me-select-entry: "MouseSecondary";
+    me-accept-entry: "MousePrimary";
+}
+
+window {
+    location: north east;
+    anchor: north east;
+    x-offset: -6px;
+    y-offset: 6px;
+    width: 380px;
+    border-radius: 16px;
+    background-color: @bg;
+    border: 1px;
+    border-color: #ffffff1a;
+    padding: 12px;
+}
+mainbox { spacing: 10px; children: [ inputbar, message, listview ]; }
+inputbar { padding: 6px 10px; children: [ prompt ]; }
+prompt { font: "Ubuntu Sans Bold 13"; }
+message { padding: 6px 10px; border-radius: 10px; background-color: @surface; }
+textbox { text-color: @dim; }
+listview { lines: 10; dynamic: true; spacing: 4px; scrollbar: false; fixed-height: false; }
+element { text-color: @fg; padding: 10px 12px; border-radius: 10px; spacing: 10px; }
+element normal.normal, element alternate.normal { background-color: transparent; }
+element selected.normal { background-color: @hover; }
+element normal.active, element alternate.active { background-color: @accent; text-color: @accent-fg; }
+element selected.active { background-color: #c768c7; text-color: @accent-fg; }
+element-text { font: "JetBrainsMono Nerd Font 11"; text-color: inherit; }

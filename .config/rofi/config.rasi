@@ -1,109 +1,53 @@
 configuration {
-    /* Combined both configuration blocks. All modes are now available. */
-    modes: [ combi, drun, window, run ];
+    modes: [ drun, window, run, combi ];
     combi-modes: [ window, drun, run ];
+    show-icons: true;
+    icon-theme: "Yaru-magenta-dark";
+    drun-display-format: "{name}";
+    display-drun: "";
+    display-window: "";
+    display-run: "";
+    hover-select: true;
+    me-select-entry: "MouseSecondary";
+    me-accept-entry: "MousePrimary";
 }
 
-@theme "default"
+@import "colors.rasi"
 
-/* --- Color Definitions --- */
-* {
-    background:         rgba(107, 6, 102, 0.8);
-    entry-bg:           rgba(64, 0, 72, 0.8);
-    cursor:             rgba(5, 5, 5, 0.8);
-    entry-text:         rgba(255, 182, 193, 0.8);
-    element-bg:         rgba(82, 0, 85, 0.8);
-    alt-bg:             rgba(64, 0, 72, 0.8);
-    selected-bg:        rgba(161, 0, 156, 0.8);
-    element-text:       rgba(240, 54, 234, 1.0);
-    white:              rgba(255, 255, 255, 1.0);
-    border-color:       rgba(255, 217, 254, 1.0);
-}
-
-/* --- Main Window --- */
+/* GNOME-style launcher: search pill on top, apps as a simple list */
 window {
-    background-color: @background;
+    width: 560px;
+    border-radius: 20px;
+    background-color: @bg;
     border: 1px;
-    border-color: @border-color;
-    padding: 5;
-    orientation: horizontal;
-    children: [ main-box ];
+    border-color: #ffffff1a;
+    padding: 18px;
 }
-
-main-box {
-    orientation: vertical;
-    padding: 0.75em;
-    spacing: 0.75em;
-    border: 2px 1px 1px 1px;
-    border-color: @border-color;
-    children: [ entry, listview ];
+mainbox { spacing: 14px; children: [ inputbar, listview ]; }
+inputbar {
+    background-color: @surface;
+    border-radius: 999px;
+    padding: 10px 18px;
+    spacing: 10px;
+    children: [ icon-search, entry ];
 }
-
-/* --- Entry Box (Input Field) --- */
-entry {
-    placeholder: "Type here";
-    text-color: @entry-text;
-    background-color: @entry-bg;
-    padding: 15px;
-    cursor-color: @cursor;
-    cursor-width: 10px;
-    hide-cursor-on-empty: true;
-    expand: false;
-    fixed-height: true;
-    height: 1.5em;
-    yalign: 0.0;
-    border: 2px;
-    border-color: @border-color;
-}
-
-/* --- List View --- */
+icon-search { expand: false; filename: "system-search-symbolic"; size: 20px; vertical-align: 0.5; }
+entry { placeholder: "Type to search"; placeholder-color: @dim; vertical-align: 0.5; }
 listview {
-    outline: none;
-    border: none;
-    layout: vertical;
-    expand: true;
-    spacing: 0.5em;
-    lines: 5;
-    yalign: 0.0;
+    columns: 1;
+    lines: 8;
+    spacing: 2px;
+    fixed-height: false;
+    scrollbar: false;
 }
-
-/* --- Generic Element Styling (Layout & Common Properties) --- */
 element {
-    /* Only properties common to ALL elements (normal, alternate, selected) */
     orientation: horizontal;
-    children: [ element-icon, element-text ];
+    padding: 8px 12px;
     spacing: 12px;
-    padding: 10px;
-    border-radius: 6px;
-    /* Background/Color/Border handled by the specific state definitions below */
+    border-radius: 12px;
+    text-color: @fg;
 }
-
-element-icon {
-    size: 1.6em;
-}
-
-element-text {
-    text-color: @element-text;
-    vertical-align: 0.5;
-}
-
-/* --- Specific Element States (Fixed Overrides) --- */
-#element.normal.normal {
-    background-color: @element-bg;
-    text-color: @white;
-    border: 2px;
-    border-color: @border-color;
-}
-#element.alternate.normal {
-    background-color: @alt-bg;
-    text-color: @white;
-    border: 2px;
-    border-color: @border-color;
-}
-#element.selected.normal {
-    /* FIX: This will now correctly use the selected color */
-    background-color: @selected-bg;
-    text-color: @white;
-    border: 2px;
-    border-color: @border-color;
-}
+element normal.normal, element alternate.normal { background-color: transparent; text-color: @fg; }
+element selected.normal { background-color: @hover; text-color: @fg; }
+element-icon { size: 32px; vertical-align: 0.5; }
+element-text { vertical-align: 0.5; font: "Ubuntu Sans 12"; text-color: inherit; }

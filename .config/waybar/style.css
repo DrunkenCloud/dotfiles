@@ -1,84 +1,83 @@
 * {
   border: none;
-  border-radius: 0;
   font-family: "JetBrainsMono Nerd Font", monospace;
   font-size: 14px;
   min-height: 0;
 }
 
+/* Floating, rounded bar */
 window#waybar {
-  background: rgba(20, 20, 25, 0.85); /* Darker, less transparent */
+  background: rgba(20, 18, 28, 0.82);
   color: #e0e0e0;
+  border: 2px solid rgba(168, 85, 247, 0.55);
+  border-radius: 14px;
 }
 
-/* Workspaces - inactive */
+tooltip {
+  background: rgba(20, 18, 28, 0.95);
+  border: 1px solid #a855f7;
+  border-radius: 10px;
+}
+
+/* Workspaces: CSS-drawn dots (no font glyphs, so always centered).
+   The button stays full-height and transparent; the dot is drawn on its
+   (empty) label, which GTK centers vertically. */
+#workspaces { margin: 0 6px 0 10px; }
 #workspaces button {
-  padding: 0 5px;
+  padding: 0 3px;
+  margin: 0;
   background: transparent;
-  color: #3a2e4f; /* Dark purple tone */
-  border-bottom: 2px solid transparent;
+  box-shadow: none;
+}
+#workspaces button label {
+  font-size: 1px;
+  min-width: 10px;
+  margin: 13px 0 14px 0; /* label stretches to the ~37px bar height; this leaves a 10px dot */
+  border-radius: 999px;
+  background: #4a3d63;
+}
+#workspaces button.empty label  { background: #3a2e4f; }
+#workspaces button:hover label  { background: #8b6fb8; }
+#workspaces button.active label { min-width: 28px; background: #c084fc; }
+#workspaces button.urgent label { background: #ed8796; }
+
+/* Module "pills" */
+#clock, #cpu, #memory, #temperature, #pulseaudio,
+#network, #bluetooth, #battery, #tray, #custom-recording {
+  padding: 0 12px;
+  margin: 5px 0;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.05);
+}
+#tray { margin-right: 6px; }
+
+#clock       { color: #e9d5ff; font-weight: bold; }
+#cpu         { color: #f5a97f; }
+#memory      { color: #eed49f; }
+#temperature { color: #91d7e3; }
+#pulseaudio  { color: #5a8dee; }
+#network     { color: #6bbf59; }
+#bluetooth   { color: #5ac8fa; }
+#battery     { color: #c6a0f6; }
+
+#bluetooth.off, #bluetooth.disabled,
+#pulseaudio.muted, #network.disconnected { color: #666; }
+
+#battery.charging, #battery.full { color: #6bbf59; }
+#battery.warning:not(.charging)  { color: #f5a97f; }
+#cpu.warning, #memory.warning    { color: #f5a97f; }
+
+#battery.critical:not(.charging),
+#cpu.critical, #memory.critical,
+#temperature.critical {
+  color: #1a1424;
+  background: #ed8796;
 }
 
-/* Workspaces - active */
-#workspaces button.active {
-  color: #c084fc; /* Brighter purple */
-  border-bottom: 2px solid transparent;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent; /* Makes text gradient-colored */
+/* Recording indicator: hidden when idle, red when live */
+#custom-recording { padding: 0; background: transparent; }
+#custom-recording.on {
+  padding: 0 12px;
+  color: #fff;
+  background: #e5484d;
 }
-
-/* Workspaces - hover */
-#workspaces button:hover {
-  background: rgba(192, 132, 252, 0.15); /* Light purple hover */
-}
-
-
-/* Modules */
-#clock,
-#pulseaudio,
-#network,
-#battery,
-#tray,
-#custom-bluetooth {
-  padding: 0 10px;
-  margin: 0 4px;
-  background-color: transparent;
-}
-
-/* Colors */
-#pulseaudio {
-  color: #5a8dee; /* Muted blue */
-}
-
-#network {
-  color: #6bbf59; /* Muted green */
-}
-
-#battery {
-  color: #d45d79; /* Muted red-pink */
-}
-
-#battery.charging,
-#battery.full {
-  color: #6bbf59;
-}
-
-#battery.critical {
-  color: #d45d79;
-}
-
-#tray {
-  padding-right: 15px;
-}
-
-#custom-bluetooth {
-  color: #5ac8fa; /* Cyan for Bluetooth */
-}
-
-#custom-bluetooth.on {
-  color: #5ac8fa; /* blue when on */
-}
-#custom-bluetooth.off {
-  color: #666666; /* gray when off */
-}
-

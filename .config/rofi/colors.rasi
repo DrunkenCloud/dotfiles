@@ -1,0 +1,13 @@
+/* GNOME / Yaru-magenta-dark palette (matches your GNOME session) */
+* {
+    bg:        #242424f2;
+    surface:   #ffffff12;
+    hover:     #ffffff1f;
+    fg:        #ffffff;
+    dim:       #9a9a9a;
+    accent:    #b34cb3;
+    accent-fg: #ffffff;
+    font:      "Ubuntu Sans 12";
+    background-color: transparent;
+    text-color: @fg;
+}

@@ -1,5 +1,13 @@
 maximize = true
 font-size = 16
-background-opacity=0.8
-theme="Duotone Dark"
-background-blur=10
+theme = "Lovelace"
+
+# opaque background (was background-opacity=0.8 + background-blur=10)
+background-opacity = 1
+
+# browser-style tabs
+keybind = ctrl+t=new_tab
+keybind = ctrl+w=close_tab:this
+
+# ctrl+o is readline's rarely-used operate-and-get-next, safe to give up
+keybind = ctrl+o=new_split:right

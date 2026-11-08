@@ -1,6 +1,8 @@
 [window]
-opacity=0.7
+opacity = 0.85
 startup_mode = "Maximized"
+# "Full" = title bar + border, "None" = neither
+decorations = "Full"
 
 [env]
 WINIT_UNIX_BACKEND = "wayland"
@@ -14,6 +16,10 @@ size = 17.5
 background = '#1a1b26'
 foreground = '#c0caf5'
 
+# Added: Cursor configuration for a Block cursor
+[cursor]
+style = { shape = "Beam", blinking = "On" }
+# You can uncomment the colors.cursor block if you want the cursor colors to be different
 #[colors.cursor]
 #cursor = '#c0caf5'
 #text = '#1a1b26'
@@ -49,3 +55,7 @@ color = '#ff9e64'
 index = 17
 color = '#db4b4b'
 
+[[keyboard.bindings]]
+key = "Return"
+mods = "Shift"
+chars = "\u001B\r"
