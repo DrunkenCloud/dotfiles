@@ -6,6 +6,7 @@
 # Restore (on this or a new laptop, after setting up rclone + the password):
 #   restic -r rclone:mega:laptop-backup snapshots
 #   restic -r rclone:mega:laptop-backup restore latest --target ~/restore
+#   (paths in the backup are relative to ~, e.g. one folder: --include /Documents/Resumes)
 
 set -uo pipefail
 
