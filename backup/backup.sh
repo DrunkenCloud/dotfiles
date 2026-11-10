@@ -33,6 +33,10 @@ if [ "$(nmcli networking connectivity 2>/dev/null)" != "full" ]; then
 fi
 
 cd "$HOME" || exit 1
+# A run killed mid-way (shutdown, lid close...) leaves a lock that blocks every
+# later cleanup. "unlock" only removes stale locks (dead process), never a live one.
+restic "${OPTS[@]}" unlock -q
+
 for attempt in 1 2 3; do              # retry transient Drive/network errors
     restic "${OPTS[@]}" backup \
         --files-from "$HERE/paths.txt" \
