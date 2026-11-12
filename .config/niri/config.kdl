@@ -1,0 +1,202 @@
+// niri: scrollable-tiling Wayland compositor (pick "Niri" at the login screen).
+// Same keys, shell (Noctalia) and battery tweaks as the Hyprland setup.
+// Check after editing:  niri validate      Docs: https://niri-wm.github.io/niri/
+// SUPER+/ shows every keybinding.
+
+// --- GPU: Intel only -------------------------------------------------------
+// Render on the Intel iGPU and don't touch the NVIDIA card at all, so it can
+// power off (same idea as AQ_DRM_DEVICES in hyprland.lua). The HDMI port is
+// wired to NVIDIA, so it doesn't work in this session.
+debug {
+    render-drm-device "/dev/dri/by-path/pci-0000:00:02.0-render"
+    ignore-drm-device "/dev/dri/by-path/pci-0000:01:00.0-render"
+    // Lets Noctalia's notification actions focus their app.
+    honor-xdg-activation-with-invalid-serial
+}
+
+// --- Input -----------------------------------------------------------------
+input {
+    keyboard {
+        xkb { layout "us"; }
+        numlock
+    }
+    touchpad {
+        tap
+        natural-scroll
+    }
+    // Focus follows the mouse, but never scrolls the view on its own.
+    focus-follows-mouse max-scroll-amount="0%"
+}
+
+output "eDP-1" {
+    scale 1.0
+}
+
+// --- Look ------------------------------------------------------------------
+layout {
+    gaps 6
+    center-focused-column "never"
+    // SUPER+T cycles a column through these widths.
+    preset-column-widths {
+        proportion 0.33333
+        proportion 0.5
+        proportion 0.66667
+        proportion 1.0
+    }
+    default-column-width { proportion 0.5; }
+
+    focus-ring {
+        width 2
+        active-color "#c084fc"
+        inactive-color "#4c3870"
+    }
+    border { off; }
+    shadow { on; }
+
+    // Wallpaper stays still behind everything (Noctalia draws it on the backdrop).
+    background-color "transparent"
+}
+
+layer-rule {
+    match namespace="^noctalia-wallpaper"
+    place-within-backdrop true
+}
+overview {
+    workspace-shadow { off; }
+}
+
+window-rule {
+    geometry-corner-radius 10
+    clip-to-geometry true
+}
+
+// Settings-type apps open floating (same list as hyprland.lua).
+window-rule {
+    match app-id="^(org.pulseaudio.pavucontrol|pavucontrol|blueman-manager|.blueman-manager-wrapped|nm-connection-editor|org.gnome.Calendar)$"
+    open-floating true
+    default-column-width { fixed 900; }
+    default-window-height { fixed 620; }
+}
+window-rule {
+    match app-id="dev.noctalia.Noctalia"
+    open-floating true
+    default-column-width { fixed 1080; }
+    default-window-height { fixed 920; }
+}
+
+prefer-no-csd
+hotkey-overlay { skip-at-startup; }
+screenshot-path "~/Pictures/Screenshots/screenshot_%Y-%m-%d_%H-%M-%S.png"
+
+// --- Autostart -------------------------------------------------------------
+// (X11 apps work automatically: niri starts xwayland-satellite when needed.)
+spawn-sh-at-startup "__EGL_VENDOR_LIBRARY_FILENAMES=/usr/share/glvnd/egl_vendor.d/50_mesa.json noctalia"
+spawn-at-startup "/usr/libexec/hyprpolkitagent"
+spawn-sh-at-startup "udiskie --automount --notify --smart-tray"
+spawn-sh-at-startup "~/.config/hypr/scripts/power-mode.sh"
+spawn-at-startup "blueman-applet"
+
+// --- Keys ------------------------------------------------------------------
+binds {
+    // Apps
+    Mod+Q hotkey-overlay-title="Terminal" { spawn "alacritty"; }
+    Mod+F hotkey-overlay-title="Firefox" { spawn "firefox"; }
+    Mod+W hotkey-overlay-title="Brave" { spawn "brave-browser"; }
+    Mod+E hotkey-overlay-title="File manager" { spawn "nautilus"; }
+    Mod+Space hotkey-overlay-title="App launcher" { spawn-sh "noctalia msg panel-toggle launcher"; }
+    Mod+A hotkey-overlay-title="Control center" { spawn-sh "noctalia msg panel-toggle control-center"; }
+    Mod+Comma hotkey-overlay-title="Noctalia settings" { spawn-sh "noctalia msg settings-toggle"; }
+    Mod+Slash { show-hotkey-overlay; }
+    Mod+Shift+W hotkey-overlay-title="Clipboard history" { spawn-sh "noctalia msg panel-toggle clipboard"; }
+    Mod+R hotkey-overlay-title="Toggle night light" { spawn-sh "noctalia msg nightlight-force-toggle"; }
+    Mod+D hotkey-overlay-title="Voice typing: start / stop" { spawn-sh "~/.config/hypr/scripts/dictate.sh"; }
+    Alt+Tab hotkey-overlay-title="Switch windows" { spawn-sh "noctalia msg window-switcher hold"; }
+    Alt+Shift+Tab hotkey-overlay-title=null { spawn-sh "noctalia msg window-switcher hold reverse"; }
+
+    // Windows
+    Mod+C repeat=false { close-window; }
+    Mod+V { toggle-window-floating; }
+    Mod+Shift+V hotkey-overlay-title="Switch focus floating / tiled" { switch-focus-between-floating-and-tiling; }
+    Mod+T { switch-preset-column-width; }
+    Mod+Shift+F { maximize-column; }
+    Mod+Ctrl+F { fullscreen-window; }
+    Mod+Minus { set-column-width "-10%"; }
+    Mod+Equal { set-column-width "+10%"; }
+    // Stack the window into the column on the left / pop it out to its own column
+    Mod+BracketLeft { consume-or-expel-window-left; }
+    Mod+BracketRight { consume-or-expel-window-right; }
+    Mod+O repeat=false { toggle-overview; }
+
+    // Focus: SUPER + hjkl / arrows. Move: SUPER + SHIFT + hjkl / arrows.
+    Mod+H { focus-column-left; }
+    Mod+L { focus-column-right; }
+    Mod+K { focus-window-or-workspace-up; }
+    Mod+J { focus-window-or-workspace-down; }
+    Mod+Left { focus-column-left; }
+    Mod+Right { focus-column-right; }
+    Mod+Up { focus-window-or-workspace-up; }
+    Mod+Down { focus-window-or-workspace-down; }
+    Mod+Shift+H { move-column-left; }
+    Mod+Shift+L { move-column-right; }
+    Mod+Shift+K { move-window-up-or-to-workspace-up; }
+    Mod+Shift+J { move-window-down-or-to-workspace-down; }
+    Mod+Shift+Left { move-column-left; }
+    Mod+Shift+Right { move-column-right; }
+    Mod+Shift+Up { move-window-up-or-to-workspace-up; }
+    Mod+Shift+Down { move-window-down-or-to-workspace-down; }
+    Mod+Home { focus-column-first; }
+    Mod+End { focus-column-last; }
+
+    // Workspaces (stacked vertically)
+    Mod+1 { focus-workspace 1; }
+    Mod+2 { focus-workspace 2; }
+    Mod+3 { focus-workspace 3; }
+    Mod+4 { focus-workspace 4; }
+    Mod+5 { focus-workspace 5; }
+    Mod+6 { focus-workspace 6; }
+    Mod+7 { focus-workspace 7; }
+    Mod+8 { focus-workspace 8; }
+    Mod+9 { focus-workspace 9; }
+    Mod+Shift+1 { move-column-to-workspace 1; }
+    Mod+Shift+2 { move-column-to-workspace 2; }
+    Mod+Shift+3 { move-column-to-workspace 3; }
+    Mod+Shift+4 { move-column-to-workspace 4; }
+    Mod+Shift+5 { move-column-to-workspace 5; }
+    Mod+Shift+6 { move-column-to-workspace 6; }
+    Mod+Shift+7 { move-column-to-workspace 7; }
+    Mod+Shift+8 { move-column-to-workspace 8; }
+    Mod+Shift+9 { move-column-to-workspace 9; }
+
+    // Mouse wheel: SUPER+scroll = workspaces, SUPER+SHIFT+scroll = columns
+    Mod+WheelScrollDown cooldown-ms=150 { focus-workspace-down; }
+    Mod+WheelScrollUp cooldown-ms=150 { focus-workspace-up; }
+    Mod+Shift+WheelScrollDown { focus-column-right; }
+    Mod+Shift+WheelScrollUp { focus-column-left; }
+
+    // Screenshots (niri's own: copied to clipboard + saved to ~/Pictures/Screenshots)
+    Mod+Shift+S { screenshot; }
+    Print { screenshot-screen; }
+    Shift+Print { screenshot-window; }
+    Mod+Shift+R hotkey-overlay-title="Screen recording: start / stop" { spawn-sh "~/.config/hypr/scripts/record.sh"; }
+    Mod+Shift+C hotkey-overlay-title="Screen recording: emergency stop" { spawn-sh "pkill -INT -x wf-recorder"; }
+
+    // Session
+    Mod+Escape hotkey-overlay-title="Lock screen" { spawn-sh "noctalia msg session lock"; }
+    Mod+M { quit; }
+    Ctrl+Alt+Delete { quit; }
+    Ctrl+Alt+S hotkey-overlay-title="Shut down" { spawn-sh "systemctl poweroff"; }
+    Ctrl+Alt+R hotkey-overlay-title="Reboot" { spawn-sh "systemctl reboot"; }
+    Ctrl+Alt+Q hotkey-overlay-title="Suspend" { spawn-sh "systemctl suspend"; }
+
+    // Media / brightness keys (work on the lock screen too)
+    XF86AudioRaiseVolume allow-when-locked=true { spawn-sh "noctalia msg volume-up"; }
+    XF86AudioLowerVolume allow-when-locked=true { spawn-sh "noctalia msg volume-down"; }
+    XF86AudioMute allow-when-locked=true { spawn-sh "noctalia msg volume-mute"; }
+    XF86AudioMicMute allow-when-locked=true { spawn-sh "noctalia msg mic-mute"; }
+    XF86MonBrightnessUp allow-when-locked=true { spawn-sh "noctalia msg brightness-up"; }
+    XF86MonBrightnessDown allow-when-locked=true { spawn-sh "noctalia msg brightness-down"; }
+    XF86AudioNext allow-when-locked=true { spawn "playerctl" "next"; }
+    XF86AudioPause allow-when-locked=true { spawn "playerctl" "play-pause"; }
+    XF86AudioPlay allow-when-locked=true { spawn "playerctl" "play-pause"; }
+    XF86AudioPrev allow-when-locked=true { spawn "playerctl" "previous"; }
+}
